@@ -110,7 +110,7 @@ uint8_t usart1_receive_buffer[17];
 uint32_t usart1_error;
 uint32_t modbus_message_received;
 
-uint32_t packet_counter;
+uint32_t current_block;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
