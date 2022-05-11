@@ -111,6 +111,7 @@ uint32_t usart1_error;
 uint32_t modbus_message_received;
 
 uint32_t current_block;
+uint32_t allow_placement;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -309,6 +310,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 		default:
 			break;
 	}
+	allow_placement = 1;
 }
 void HAL_USART_RxCpltCallback(UART_HandleTypeDef *huart)
 {

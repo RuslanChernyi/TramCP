@@ -97,7 +97,7 @@ typedef union mdb_ascii_table
 
 
 uint32_t send_modbus_response(UART_HandleTypeDef* uart, reqest_info_t * req);
-uint32_t receive_modbus_request(UART_HandleTypeDef* uart, reqest_info_t * req);
+//uint32_t receive_modbus_request(UART_HandleTypeDef* uart, reqest_info_t * req);
 uint8_t lrc_generation(uint32_t size, uint8_t* byte_array);
 uint32_t check_modbus_request(uint8_t * buffer,reqest_info_t * req);
 

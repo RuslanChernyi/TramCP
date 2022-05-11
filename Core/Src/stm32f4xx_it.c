@@ -89,6 +89,10 @@ extern uint8_t first_packet[8];
 extern uint8_t second_packet[8];
 extern uint8_t third_packet[8];
 extern uint8_t fourth_packet[8];
+extern IOBoard_t io1;
+extern IOBoard_t io2;
+extern IOBoard_t io3;
+extern IOBoard_t io4;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -308,7 +312,14 @@ void TIM6_DAC_IRQHandler(void)
 void TIM7_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM7_IRQn 0 */
+	typedef enum
+	{
+		NO,
+		YES
+	}go_next_enum;
 	position_in_program = IN_TIM7_INTERRUPT;
+	static uint32_t current_block = 1;
+	uint32_t go_to_the_next_block = 0;
 	/*** Meandr for CPU control ***/
 	if(MCU_CONTROL_COUNTER == 10)
 	{
@@ -322,49 +333,66 @@ void TIM7_IRQHandler(void)
 	}
 
 	/*** Request data from drive board ***/
-	switch(next_case)
+//	switch(next_case)
+//	{
+//		case 1:
+//			askPacket(&hcan1);
+//			next_case = 2;
+//			break;
+//		case 2:
+//			if(HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
+//			{
+//				Error_Handler();
+//			}
+//			next_case = 3;
+//			break;
+//		case 3:
+//			placeIntoTable();
+//			next_case = 4;
+//			break;
+//		case 4:
+//			IOboard_request(&hcan2, 0, cmd_for_IOboard, &IOboard_req);
+//			next_case = 5;
+//			break;
+//		case 5:
+//			receiveFromIO(&hcan2, RxData_fifo, 119);
+//			next_case = 6;
+//			break;
+//		case 6:
+//			placeIntoTableIO(RxData_fifo, &IOboard_req);
+//			if((cmd_for_IOboard == 3) && ((IOboard_adc_in_process > 0) && (IOboard_adc_in_process < 7)))
+//			{
+//				cmd_for_IOboard = 3;
+//				next_case = 4;
+//			}
+//			else
+//			{
+//				cmd_for_IOboard++;
+//				next_case = 7;
+//			}
+//			break;
+//		case 7:
+//			CIO(&io1);
+//			next_case = 8;
+//		default:
+//			next_case = 1;
+//			break;
+//	}
+	switch(current_block)
 	{
 		case 1:
-			askPacket(&hcan1);
-			next_case = 2;
+			go_to_the_next_block = CIO(&io1);
+			if(go_to_the_next_block == YES)
+			{
+				current_block = 2;
+			}
 			break;
 		case 2:
-			if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
+			go_to_the_next_block = CDR();
+			if(go_to_the_next_block == YES)
 			{
-				Error_Handler();
+				current_block = 1;
 			}
-			next_case = 3;
-			break;
-		case 3:
-			placeIntoTable();
-			next_case = 4;
-			break;
-		case 4:
-			IOboard_request(&hcan2, 0, cmd_for_IOboard, &IOboard_req);
-			next_case = 5;
-			break;
-		case 5:
-			receiveFromIO(&hcan2, RxData_fifo, 119);
-			next_case = 6;
-			break;
-		case 6:
-			placeIntoTableIO(RxData_fifo, &IOboard_req);
-			if((cmd_for_IOboard == 3) && ((IOboard_adc_in_process > 0) && (IOboard_adc_in_process < 7)))
-			{
-				cmd_for_IOboard = 3;
-				next_case = 4;
-			}
-			else
-			{
-				cmd_for_IOboard++;
-				next_case = 7;
-			}
-			break;
-		case 7:
-			CIO(&io1);
-			next_case = 8;
-		default:
-			next_case = 1;
 			break;
 	}
   /* USER CODE END TIM7_IRQn 0 */

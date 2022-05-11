@@ -1,6 +1,8 @@
 #include "Drive.h"
 #include "modbus_ascii.h"
 #include "systick.h"
+#include "main.h"
+#include "can.h"
 
 #define NO_PACKET_RECEIVED	0x1
 
@@ -23,7 +25,7 @@ extern modbus_ascii_table_t MODBUS_Table;
 
 extern uint32_t processInIO;
 
-extern
+extern uint32_t allow_placement;
 
 uint32_t askPacket(CAN_HandleTypeDef * hcan)
 {
@@ -108,5 +110,47 @@ void placeIntoTable(void)
 	MODBUS_Table.imp_drv_table.UY[1] = fourth_packet[5];
 	MODBUS_Table.imp_drv_table.CI[0] = fourth_packet[6];
 	MODBUS_Table.imp_drv_table.CI[1] = fourth_packet[7];
+}
+
+uint32_t CDR(void)
+{
+	static uint32_t current_process = 0;
+	uint32_t go_to_the_next_block = 0;
+	static uint32_t timeout_counter = 0;
+
+	typedef enum
+	{
+		NO,
+		YES
+	}go_next_enum;
+	typedef enum IO_pocesses
+	{
+		REQUEST,
+		PLACE_INTO_TABLE
+	}IO_pocesses_enum;
+	switch(current_process)
+	{
+		case REQUEST:
+			askPacket(&hcan1);
+			current_process = PLACE_INTO_TABLE;
+			go_to_the_next_block = NO;
+			break;
+		case PLACE_INTO_TABLE:
+			if((allow_placement == YES) || timeout_counter < 5)
+			{
+				placeIntoTable();
+				current_process = REQUEST;
+				go_to_the_next_block = YES;
+				allow_placement = NO;
+				timeout_counter = 0;
+			}
+			else
+			{
+				go_to_the_next_block = NO;
+				timeout_counter++;
+			}
+			break;
+	}
+	return go_to_the_next_block;
 }
 

@@ -7,5 +7,7 @@
 uint32_t askPacket(CAN_HandleTypeDef * hcan);
 void placeIntoTable(void);
 uint32_t receivePacket(CAN_HandleTypeDef * hcan);
+uint32_t CDR(void);
+
 
 #endif	/* DRIVEBOARD_H_ */

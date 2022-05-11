@@ -25,112 +25,112 @@ extern modbus_ascii_table_t MODBUS_Table;
 extern uint32_t error_notice;
 
 // Receive a request
-uint32_t receive_modbus_request(UART_HandleTypeDef* uart, reqest_info_t * req)
-{
-	if(uart->Instance->SR && (1U<<5))
-	{
-		uint32_t size = 8;
-		int i = 0;
-		uint8_t buffer[17] = {0};
-		ascii_hex_code_t ascii_to_hex_temp = {0};
-		uint32_t Timeout = 1;
-		/*** Look for ':' (Start of modbus ascii message) ***/
-		HAL_UART_Receive(uart, buffer, 1, Timeout);
-		// Get request into buffer
-		if(buffer[0] == ':')
-		{
-			/*** Get the rest of the message ***/
-			HAL_UART_Receive(uart, &buffer[1], 16, 1);
-
-			// Then parse the request
-			// Check for starting byte (:)
-			modbus_request_msg.ascii_message.header = buffer[0];
-			if(!(modbus_request_msg.ascii_message.header == START_CODE))
-			{
-				return NO_START_BYTE;
-			}
-			// Check for slave address
-			ascii_to_hex_temp.first_symbol = buffer[1];
-			ascii_to_hex_temp.second_symbol = buffer[2];
-			modbus_request_msg.ascii_message.slave_address = ASCIIHex(&ascii_to_hex_temp);
-			req->slave_address = modbus_request_msg.ascii_message.slave_address;
-			if(!(modbus_request_msg.ascii_message.slave_address == SLAVE_DEVICE_ADDRESS))
-			{
-				return WRONG_SLAVE;
-			}
-			// Check for Function code
-			ascii_to_hex_temp.first_symbol = buffer[3];
-			ascii_to_hex_temp.second_symbol = buffer[4];
-			modbus_request_msg.ascii_message.function = ASCIIHex(&ascii_to_hex_temp);
-			req->func_code = modbus_request_msg.ascii_message.function;
-			if((modbus_request_msg.ascii_message.function < 1) || (modbus_request_msg.ascii_message.function > 8))
-			{
-				return WRONG_FUNCTION_CODE;
-			}
-			// Get starting address
-			ascii_to_hex_temp.first_symbol = buffer[5];
-			ascii_to_hex_temp.second_symbol = buffer[6];
-			modbus_request_msg.ascii_message.start_addr_hi = ASCIIHex(&ascii_to_hex_temp);
-			ascii_to_hex_temp.first_symbol = buffer[7];
-			ascii_to_hex_temp.second_symbol = buffer[8];
-			modbus_request_msg.ascii_message.start_addr_lo = ASCIIHex(&ascii_to_hex_temp);
-			req->starting_address = modbus_request_msg.ascii_message.start_addr_hi<<4;
-			req->starting_address |= modbus_request_msg.ascii_message.start_addr_lo;
-			if(req->starting_address < MIN_MODBUS_TABLE_ADDRESS)
-			{
-				req->starting_address = MIN_MODBUS_TABLE_ADDRESS;
-				error_notice = ADDRESS_LOWER_THAN_MIN;
-			}
-			// Get quantity
-			ascii_to_hex_temp.first_symbol = buffer[9];
-			ascii_to_hex_temp.second_symbol = buffer[10];
-			modbus_request_msg.ascii_message.quantity_hi = ASCIIHex(&ascii_to_hex_temp);
-			ascii_to_hex_temp.first_symbol = buffer[11];
-			ascii_to_hex_temp.second_symbol = buffer[12];
-			modbus_request_msg.ascii_message.quantity_lo = ASCIIHex(&ascii_to_hex_temp);
-			req->quantity =	modbus_request_msg.ascii_message.quantity_hi<<4;
-			req->quantity |= modbus_request_msg.ascii_message.quantity_lo;
-			if(req->quantity > MAX_MODBUS_TABLE_VALUE)
-			{
-				req->quantity = MAX_MODBUS_TABLE_VALUE;
-				error_notice = QUANTITY_BIGGER_THAN_MODBUS;
-			}
-			// Check error(LRC)
-			ascii_to_hex_temp.first_symbol = buffer[13];
-			ascii_to_hex_temp.second_symbol = buffer[14];
-			modbus_request_msg.ascii_message.lrc_check = ASCIIHex(&ascii_to_hex_temp);
-			uint8_t myLRCcheck = lrc_generation(6, &modbus_request_msg.ascii_message_array[1]);
-			if(modbus_request_msg.ascii_message.lrc_check != myLRCcheck)
-			{
-				return WRONG_LRC;
-			}
-
-			// Check for end bytes
-			if(buffer[15] == CR_CODE)
-			{
-				modbus_request_msg.ascii_message.trailer.CR = buffer[15];
-				if(buffer[16] == LF_CODE)
-				{
-					modbus_request_msg.ascii_message.trailer.LF = buffer[16];
-					return HAL_OK;
-				}
-				else
-				{
-					return NO_LF_CODE;
-				}
-			}
-			else
-			{
-				return NO_CR_CODE;
-			}
-		}
-	}
-	else
-	{
-	}
-
-	return HAL_ERROR;
-}
+//uint32_t receive_modbus_request(UART_HandleTypeDef* uart, reqest_info_t * req)
+//{
+//	if(uart->Instance->SR && (1U<<5))
+//	{
+//		uint32_t size = 8;
+//		int i = 0;
+//		uint8_t buffer[17] = {0};
+//		ascii_hex_code_t ascii_to_hex_temp = {0};
+//		uint32_t Timeout = 1;
+//		/*** Look for ':' (Start of modbus ascii message) ***/
+//		HAL_UART_Receive(uart, buffer, 1, Timeout);
+//		// Get request into buffer
+//		if(buffer[0] == ':')
+//		{
+//			/*** Get the rest of the message ***/
+//			HAL_UART_Receive(uart, &buffer[1], 16, 1);
+//
+//			// Then parse the request
+//			// Check for starting byte (:)
+//			modbus_request_msg.ascii_message.header = buffer[0];
+//			if(!(modbus_request_msg.ascii_message.header == START_CODE))
+//			{
+//				return NO_START_BYTE;
+//			}
+//			// Check for slave address
+//			ascii_to_hex_temp.first_symbol = buffer[1];
+//			ascii_to_hex_temp.second_symbol = buffer[2];
+//			modbus_request_msg.ascii_message.slave_address = ASCIIHex(&ascii_to_hex_temp);
+//			req->slave_address = modbus_request_msg.ascii_message.slave_address;
+//			if(!(modbus_request_msg.ascii_message.slave_address == SLAVE_DEVICE_ADDRESS))
+//			{
+//				return WRONG_SLAVE;
+//			}
+//			// Check for Function code
+//			ascii_to_hex_temp.first_symbol = buffer[3];
+//			ascii_to_hex_temp.second_symbol = buffer[4];
+//			modbus_request_msg.ascii_message.function = ASCIIHex(&ascii_to_hex_temp);
+//			req->func_code = modbus_request_msg.ascii_message.function;
+//			if((modbus_request_msg.ascii_message.function < 1) || (modbus_request_msg.ascii_message.function > 8))
+//			{
+//				return WRONG_FUNCTION_CODE;
+//			}
+//			// Get starting address
+//			ascii_to_hex_temp.first_symbol = buffer[5];
+//			ascii_to_hex_temp.second_symbol = buffer[6];
+//			modbus_request_msg.ascii_message.start_addr_hi = ASCIIHex(&ascii_to_hex_temp);
+//			ascii_to_hex_temp.first_symbol = buffer[7];
+//			ascii_to_hex_temp.second_symbol = buffer[8];
+//			modbus_request_msg.ascii_message.start_addr_lo = ASCIIHex(&ascii_to_hex_temp);
+//			req->starting_address = modbus_request_msg.ascii_message.start_addr_hi<<4;
+//			req->starting_address |= modbus_request_msg.ascii_message.start_addr_lo;
+//			if(req->starting_address < MIN_MODBUS_TABLE_ADDRESS)
+//			{
+//				req->starting_address = MIN_MODBUS_TABLE_ADDRESS;
+//				error_notice = ADDRESS_LOWER_THAN_MIN;
+//			}
+//			// Get quantity
+//			ascii_to_hex_temp.first_symbol = buffer[9];
+//			ascii_to_hex_temp.second_symbol = buffer[10];
+//			modbus_request_msg.ascii_message.quantity_hi = ASCIIHex(&ascii_to_hex_temp);
+//			ascii_to_hex_temp.first_symbol = buffer[11];
+//			ascii_to_hex_temp.second_symbol = buffer[12];
+//			modbus_request_msg.ascii_message.quantity_lo = ASCIIHex(&ascii_to_hex_temp);
+//			req->quantity =	modbus_request_msg.ascii_message.quantity_hi<<4;
+//			req->quantity |= modbus_request_msg.ascii_message.quantity_lo;
+//			if(req->quantity > MAX_MODBUS_TABLE_VALUE)
+//			{
+//				req->quantity = MAX_MODBUS_TABLE_VALUE;
+//				error_notice = QUANTITY_BIGGER_THAN_MODBUS;
+//			}
+//			// Check error(LRC)
+//			ascii_to_hex_temp.first_symbol = buffer[13];
+//			ascii_to_hex_temp.second_symbol = buffer[14];
+//			modbus_request_msg.ascii_message.lrc_check = ASCIIHex(&ascii_to_hex_temp);
+//			uint8_t myLRCcheck = lrc_generation(6, &modbus_request_msg.ascii_message_array[1]);
+//			if(modbus_request_msg.ascii_message.lrc_check != myLRCcheck)
+//			{
+//				return WRONG_LRC;
+//			}
+//
+//			// Check for end bytes
+//			if(buffer[15] == CR_CODE)
+//			{
+//				modbus_request_msg.ascii_message.trailer.CR = buffer[15];
+//				if(buffer[16] == LF_CODE)
+//				{
+//					modbus_request_msg.ascii_message.trailer.LF = buffer[16];
+//					return HAL_OK;
+//				}
+//				else
+//				{
+//					return NO_LF_CODE;
+//				}
+//			}
+//			else
+//			{
+//				return NO_CR_CODE;
+//			}
+//		}
+//	}
+//	else
+//	{
+//	}
+//
+//	return HAL_ERROR;
+//}
 
 uint32_t check_modbus_request(uint8_t * buffer,reqest_info_t * req)
 {
