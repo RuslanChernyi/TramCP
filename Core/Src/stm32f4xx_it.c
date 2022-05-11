@@ -360,6 +360,9 @@ void TIM7_IRQHandler(void)
 				next_case = 7;
 			}
 			break;
+		case 7:
+			CIO(&io1);
+			next_case = 8;
 		default:
 			next_case = 1;
 			break;

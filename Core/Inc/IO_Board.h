@@ -43,11 +43,32 @@ typedef struct IOBoard
 	IOboard_request_t requestedData;
 }IOBoard_t;
 
-void askIO(CAN_HandleTypeDef * hcan, IOboard_request_t * req);
+void IOboard1Init(void);
+void IOboard2Init(void);
+void IOboard3Init(void);
+void IOboard4Init(void);
 
+
+void askIO(CAN_HandleTypeDef * hcan, IOboard_request_t * req);
 uint32_t receiveFromIO(CAN_HandleTypeDef * hcan, uint8_t * receivedData, uint32_t boardID);
 void placeIntoTableIO(uint8_t * receivedData, IOboard_request_t * req);
 void IOboard_request(CAN_HandleTypeDef * hcan, uint32_t boardNumber, uint32_t cmd, IOboard_request_t * req);
-void getADC(IOBoard_t * IOBoard,uint32_t adc_ch);
+
+void ask_for_readiness(IOBoard_t * IOBoard);
+void ask_for_specific_DIN(IOBoard_t * IOBoard, uint8_t DIN);
+void ask_for_specific_ADC(IOBoard_t * IOBoard, uint8_t ADCx);
+void turn_on_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT);
+void turn_off_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT);
+void ask_for_specific_IS(IOBoard_t * IOBoard, uint8_t ISx);
+void ask_DINs(IOBoard_t * IOBoard);
+void ask_for_specific_XA(IOBoard_t * IOBoard, uint8_t XAx);
+void set_address_of_IO(IOBoard_t * IOBoard, uint8_t NewAddr);
+
+uint32_t CIO(IOBoard_t * IOBoard);
+uint32_t get_response(IOBoard_t * IOBoard);
+void RequestIO(IOBoard_t * IOBoard);
+void place_into_table(IOBoard_t * IOBoard);
+
+
 
 #endif /* IOBOARD_H_ */

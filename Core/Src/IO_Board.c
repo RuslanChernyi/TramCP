@@ -51,11 +51,42 @@ uint32_t receiveFromIO2(IOBoard_t * IOBoard);
 
 void IOboard1Init(void)
 {
-	io1.BoardNr = 0x1;
+	io1.BoardNr = 1;
 	io1.hcan = &hcan2;
-	io1.currentCommand = ASK_FOR_READINESS;
 	io1.lastCommand = 0;
+	io1.currentCommand = 0;
+	io1.nextCommand = 0;
+
 }
+void IOboard2Init(void)
+{
+	io1.BoardNr = 2;
+	io1.hcan = &hcan2;
+	io1.lastCommand = 0;
+	io1.currentCommand = 0;
+	io1.nextCommand = 0;
+
+}
+void IOboard3Init(void)
+{
+	io1.BoardNr = 3;
+	io1.hcan = &hcan2;
+	io1.lastCommand = 0;
+	io1.currentCommand = 0;
+	io1.nextCommand = 0;
+
+}
+void IOboard4Init(void)
+{
+	io1.BoardNr = 4;
+	io1.hcan = &hcan2;
+	io1.lastCommand = 0;
+	io1.currentCommand = 0;
+	io1.nextCommand = 0;
+
+}
+
+
 
 void askIO(CAN_HandleTypeDef * hcan, IOboard_request_t * req)
 {
@@ -105,7 +136,6 @@ uint32_t receiveFromIO(CAN_HandleTypeDef * hcan, uint8_t * receivedData, uint32_
 		return NO_PACKET_RECEIVED;
 	}
 }
-
 void placeIntoTableIO(uint8_t * receivedData, IOboard_request_t * req)
 {
 	if(RxHeader.StdId == 119)
@@ -205,7 +235,6 @@ void placeIntoTableIO(uint8_t * receivedData, IOboard_request_t * req)
 		}
 	}
 }
-
 void IOboard_request(CAN_HandleTypeDef * hcan, uint32_t boardNumber, uint32_t cmd, IOboard_request_t * req)
 {
 	uint32_t increment;
@@ -260,9 +289,12 @@ void IOboard_request(CAN_HandleTypeDef * hcan, uint32_t boardNumber, uint32_t cm
 uint32_t CIO(IOBoard_t * IOBoard)
 {
 	static uint32_t current_process = 0;
-//	static IOboard_request_t request_info = {0};
-//	static uint8_t receivedData[8] = {0};
-
+	uint32_t go_to_the_next_block = 0;
+	typedef enum
+	{
+		NO,
+		YES
+	}go_next_enum;
 	typedef enum IO_pocesses
 	{
 		REQUEST,
@@ -272,72 +304,25 @@ uint32_t CIO(IOBoard_t * IOBoard)
 	switch(current_process)
 	{
 		case REQUEST:
-
+			RequestIO(IOBoard);
 			current_process = GET_RESPONSE;
+			go_to_the_next_block = NO;
 			break;
 		case GET_RESPONSE:
-			receiveFromIO2(IOBoard);
+			 get_response(IOBoard);
 			current_process = PLACE_INTO_TABLE;
+			go_to_the_next_block = NO;
 			break;
 		case PLACE_INTO_TABLE:
-			placeIntoTableIO(IOBoard->RxBuffer, &(IOBoard->requestedData));
+			place_into_table(IOBoard);
 			current_process = REQUEST;
+			go_to_the_next_block = YES;
 			break;
 	}
+	return go_to_the_next_block;
 }
 
-//void IOboard_request2(IOBoard_t * IOBoard)
-//{
-//	uint32_t increment;
-//	switch(cmd)
-//	{
-//		case ASK_FOR_READINESS:
-//			req->cmd = cmd;
-//			req->myboard_addr = boardNumber;
-//			req->element = 0;	// Get the ADC channel
-//			askIO(&hcan2, req);
-//			break;
-//		case ASK_FOR_DIN:
-//
-//			increment = 0;
-//			break;
-//		case ASK_FOR_ADC:
-//			/*** When checking ADC channels increment command after CH15 **/
-//			req->cmd = cmd;
-//			req->myboard_addr = boardNumber;
-//			req->element = IOADCs[IOboard_adc_in_process];	// Get the ADC channel
-//			askIO(&hcan2, req);
-//			if(IOboard_adc_in_process > 5)	// if ADC channel reached CH15 increament command and nulify ADC channel
-//			{
-//				IOboard_adc_in_process = 0;
-//			}
-//			else
-//			{
-//				IOboard_adc_in_process++;
-//			}
-//			break;
-//		case TURN_OFF_DOUT:
-//			break;
-//		case TURN_OFF_YS:
-//			break;
-//		case ASK_FOR_KEY_IS:
-//			break;
-//		case ASK_FOR_ALL_DINS:
-//			req->cmd = cmd;
-//			req->myboard_addr = boardNumber;
-//			req->element = 0;
-//			askIO(&hcan2, req);
-//			break;
-//		case ASK_FOR_PERIOD_XA:
-//			break;
-//		default:
-//			cmd_for_IOboard = 0;
-//			break;
-//	}
-//}
-
-
-uint32_t receiveFromIO2(IOBoard_t * IOBoard)
+uint32_t get_response(IOBoard_t * IOBoard)
 {
 	// Check if something was received
 	if(IOBoard->hcan->Instance->RF0R & (0x3<<0))
@@ -366,6 +351,7 @@ uint32_t receiveFromIO2(IOBoard_t * IOBoard)
 	{
 		return NO_PACKET_RECEIVED;
 	}
+	return 0;
 }
 
 void ask_for_readiness(IOBoard_t * IOBoard)						/*** 1 ***/
@@ -558,32 +544,50 @@ void set_address_of_IO(IOBoard_t * IOBoard, uint8_t NewAddr)	/*** 9 ***/
 	HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
 }
 
-void ask_ADCs(IOBoard_t * IOBoard)
+static uint32_t ask_ADCs(IOBoard_t * IOBoard)
 {
 	static uint8_t ADCx = 0;
+	uint32_t go_next = 0;
 	ask_for_specific_ADC(IOBoard, IOADCs[ADCx]);
 	ADCx++;
 	if(ADCx >= sizeof(IOADCs))
 	{
 		ADCx = 0;
+		go_next = 1;
 	}
+	return go_next;
 }
-void ask_ISs(IOBoard_t * IOBoard)
+static uint32_t ask_ISs(IOBoard_t * IOBoard)
 {
-	static uint8_t ISx = 0;
+	static uint8_t ISx = 1;
+	uint32_t go_next = 0;
 	ask_for_specific_IS(IOBoard, ISx);
 	ISx++;
+	if(ISx > 2)
+	{
+		ISx = 1;
+		go_next = 1;
+	}
+	return go_next;
 }
-void ask_XAs(IOBoard_t * IOBoard)
+static uint32_t ask_XAs(IOBoard_t * IOBoard)
 {
-	static uint8_t XAx = 0;
+	static uint8_t XAx = 1;
+	uint32_t go_next = 0;
 	ask_for_specific_XA(IOBoard, XAx);
 	XAx++;
+	if (XAx > 2)
+	{
+		XAx = 1;
+		go_next = 1;
+	}
+	return go_next;
 }
 
 void RequestIO(IOBoard_t * IOBoard)
 {
 	static uint32_t next_request = 0;
+	uint32_t go_next;
 	typedef enum requests
 	{
 		DINs,
@@ -591,6 +595,11 @@ void RequestIO(IOBoard_t * IOBoard)
 		ADCs,
 		XAs
 	}requests_enum;
+	typedef enum
+	{
+		NO,
+		YES
+	}go_next_enum;
 
 	switch(next_request)
 	{
@@ -599,19 +608,117 @@ void RequestIO(IOBoard_t * IOBoard)
 			next_request = ISs;
 			break;
 		case ISs:
-			ask_ISs(IOBoard);
-			next_request = ADCs;
+			go_next = ask_ISs(IOBoard);
+			if(go_next == YES)
+			{
+				next_request = ADCs;
+			}
 			break;
 		case ADCs:
-			ask_ISs(IOBoard);
-			next_request = XAs;
+			go_next = ask_ISs(IOBoard);
+			if(go_next == YES)
+			{
+				next_request = XAs;
+			}
 			break;
 		case XAs:
-			ask_ISs(IOBoard);
-			next_request = DINs;
+			go_next = ask_ISs(IOBoard);
+			if(go_next == YES)
+			{
+				next_request = DINs;
+			}
 			break;
 		default:
 			break;
 	}
 }
 
+static void place_DINs(IOBoard_t * IOBoard)
+{
+	MODBUS_Table.modbus_table[0x19] = IOBoard->RxBuffer[3];
+	MODBUS_Table.modbus_table[0x1A] = IOBoard->RxBuffer[4];
+	MODBUS_Table.modbus_table[0x1B] = IOBoard->RxBuffer[5];
+}
+static void place_ISs(IOBoard_t * IOBoard)
+{
+	return;
+}
+static void place_ADCs(IOBoard_t * IOBoard)
+{
+	uint32_t ADC_ch = IOBoard->RxBuffer[3];
+	switch(ADC_ch)
+	{
+		case CH2:
+			MODBUS_Table.modbus_table[0x1C] = IOBoard->RxBuffer[6];
+			MODBUS_Table.modbus_table[0x1D] = IOBoard->RxBuffer[5];
+			break;
+		case CH3:
+			MODBUS_Table.modbus_table[0x1E] = IOBoard->RxBuffer[6];
+			MODBUS_Table.modbus_table[0x1F] = IOBoard->RxBuffer[5];
+			break;
+		case CH4:
+			MODBUS_Table.modbus_table[0x20] = IOBoard->RxBuffer[6];
+			MODBUS_Table.modbus_table[0x21] = IOBoard->RxBuffer[5];
+			break;
+		case CH5:
+			MODBUS_Table.modbus_table[0x22] = IOBoard->RxBuffer[6];
+			MODBUS_Table.modbus_table[0x23] = IOBoard->RxBuffer[5];
+			break;
+		case CH7:
+			MODBUS_Table.modbus_table[0x24] = IOBoard->RxBuffer[6];
+			MODBUS_Table.modbus_table[0x25] = IOBoard->RxBuffer[5];
+			break;
+		case CH14:
+			MODBUS_Table.modbus_table[0x26] = IOBoard->RxBuffer[6];
+			MODBUS_Table.modbus_table[0x27] = IOBoard->RxBuffer[5];
+			break;
+		case CH15:
+			MODBUS_Table.modbus_table[0x28] = IOBoard->RxBuffer[6];
+			MODBUS_Table.modbus_table[0x29] = IOBoard->RxBuffer[5];
+			break;
+		default:
+			break;
+	}
+}
+static void place_XAs(IOBoard_t * IOBoard)
+{
+	uint32_t XAx = IOBoard->RxBuffer[3];
+	switch(XAx)
+	{
+		case XA1:
+			MODBUS_Table.modbus_table[0x2A] = IOBoard->RxBuffer[5];
+			MODBUS_Table.modbus_table[0x2B] = IOBoard->RxBuffer[4];
+			break;
+		case XA2:
+			MODBUS_Table.modbus_table[0x2C] = IOBoard->RxBuffer[5];
+			MODBUS_Table.modbus_table[0x2D] = IOBoard->RxBuffer[4];
+			break;
+	}
+}
+
+void place_into_table(IOBoard_t * IOBoard)
+{
+	typedef enum requests
+		{
+			DINs = 	7,
+			ISs = 	6,
+			ADCs = 	3,
+			XAs = 	8
+		}requests_enum;
+	uint32_t cmd = IOBoard->RxBuffer[2];
+	switch(cmd)
+	{
+		case DINs:
+			place_DINs(IOBoard);
+			break;
+		case ISs:
+			place_ISs(IOBoard);
+			break;
+		case ADCs:
+			place_ADCs(IOBoard);
+			break;
+		case XAs:
+			place_XAs(IOBoard);
+			break;
+	}
+}
