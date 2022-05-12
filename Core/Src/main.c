@@ -195,6 +195,16 @@ int main(void)
 			send_modbus_response(&huart1, &modbus_request);
 		}
 		modbus_message_received = 0;
+
+		uint8_t address = 0;
+		uint8_t spiTransmitBuffer[3];
+
+		spiTransmitBuffer[0] = (uint8_t) ((cINSTRUCTION_WRITE << 4) + ((address >> 8) & 0xF));
+		spiTransmitBuffer[1] = (uint8_t) (address & 0xFF);
+		spiTransmitBuffer[2] = 0xFF;
+
+		HAL_SPI_Transmit(&hspi1, spiTransmitBuffer, 3, 10);
+
 		__HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
 	  }
 	  else
