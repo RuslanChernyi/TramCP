@@ -550,7 +550,7 @@ static uint32_t ask_ADCs(IOBoard_t * IOBoard)
 	uint32_t go_next = 0;
 	ask_for_specific_ADC(IOBoard, IOADCs[ADCx]);
 	ADCx++;
-	if(ADCx >= sizeof(IOADCs))
+	if(ADCx >= (sizeof(IOADCs)>>2))	//sizeof(IOADCs)/4 = (sizeof(IOADCs)>>2)
 	{
 		ADCx = 0;
 		go_next = 1;
@@ -563,7 +563,7 @@ static uint32_t ask_ISs(IOBoard_t * IOBoard)
 	uint32_t go_next = 0;
 	ask_for_specific_IS(IOBoard, ISx);
 	ISx++;
-	if(ISx > 2)
+	if(ISx > 10)
 	{
 		ISx = 1;
 		go_next = 1;
@@ -587,7 +587,7 @@ static uint32_t ask_XAs(IOBoard_t * IOBoard)
 void RequestIO(IOBoard_t * IOBoard)
 {
 	static uint32_t next_request = 0;
-	uint32_t go_next;
+	uint32_t go_next = 0;
 	typedef enum requests
 	{
 		DINs,
@@ -615,14 +615,14 @@ void RequestIO(IOBoard_t * IOBoard)
 			}
 			break;
 		case ADCs:
-			go_next = ask_ISs(IOBoard);
+			go_next = ask_ADCs(IOBoard);
 			if(go_next == YES)
 			{
 				next_request = XAs;
 			}
 			break;
 		case XAs:
-			go_next = ask_ISs(IOBoard);
+			go_next = ask_XAs(IOBoard);
 			if(go_next == YES)
 			{
 				next_request = DINs;

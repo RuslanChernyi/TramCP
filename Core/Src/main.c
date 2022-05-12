@@ -163,6 +163,10 @@ int main(void)
   MX_CAN2_Init();
   /* USER CODE BEGIN 2 */
   USART1->CR1 |= (1U<<5);	// Enable Receive interrupt
+  IOboard1Init();
+  IOboard2Init();
+  IOboard3Init();
+  IOboard4Init();
   HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_Base_Start_IT(&htim7);
   TxHeader.StdId = 0x01;
@@ -180,34 +184,11 @@ int main(void)
   while (1)
   {
 	  position_in_program = IN_MAIN;
-//	  if(speed_counter == 100000 && speed_direction == 1)
-//	  {
-//		  MODBUS_Table.modbus_table[0] += 1;
-//		  speed_counter = 0;
-//		  if(MODBUS_Table.modbus_table[0] > 82)
-//		  {
-//			  speed_direction = 0;
-//		  }
-//	  }
-//	  else if(speed_counter == 100000 && speed_direction == 0)
-//	  {
-//		  MODBUS_Table.modbus_table[0] -= 1;
-//		  speed_counter = 0;
-//		  if(MODBUS_Table.modbus_table[0] <= 0)
-//		  {
-//			  speed_direction = 1;
-//		  }
-//	  }
-//	  else
-//	  {
-//		  speed_counter++;
-//	  }
 	  if(modbus_message_received)
 	  {
 		__HAL_UART_DISABLE_IT(&huart1, UART_IT_RXNE);
 		uint32_t modbus_error = 0;
 		reqest_info_t modbus_request = {0};
-		//__HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
 		modbus_error = check_modbus_request(usart1_receive_buffer, &modbus_request);
 		if(modbus_error == 0)
 		{

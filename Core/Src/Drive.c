@@ -126,14 +126,22 @@ uint32_t CDR(void)
 	typedef enum IO_pocesses
 	{
 		REQUEST,
+		GET_RESPONSE,
 		PLACE_INTO_TABLE
 	}IO_pocesses_enum;
 	switch(current_process)
 	{
 		case REQUEST:
 			askPacket(&hcan1);
-			current_process = PLACE_INTO_TABLE;
+			current_process = GET_RESPONSE;
 			go_to_the_next_block = NO;
+			break;
+		case GET_RESPONSE:
+			if(HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
+			{
+				Error_Handler();
+			}
+			current_process = PLACE_INTO_TABLE;
 			break;
 		case PLACE_INTO_TABLE:
 			if((allow_placement == YES) || timeout_counter < 5)
