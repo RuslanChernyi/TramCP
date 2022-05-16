@@ -175,6 +175,7 @@ int main(void)
   TxHeader.IDE = CAN_ID_STD;
   TxHeader.DLC = 8;
   TxHeader.TransmitGlobalTime = DISABLE;
+  //SPI1->CR2 |= (1U<<6);
 
   /* USER CODE END 2 */
 
@@ -196,36 +197,37 @@ int main(void)
 		}
 		modbus_message_received = 0;
 
-		uint8_t address = 0;
-		uint8_t spiTransmitBuffer[3];
-
-		spiTransmitBuffer[0] = (uint8_t) ((cINSTRUCTION_WRITE << 4) + ((address >> 8) & 0xF));
-		spiTransmitBuffer[1] = (uint8_t) (address & 0xFF);
-		spiTransmitBuffer[2] = 0xFF;
-
-		HAL_SPI_Transmit(&hspi1, spiTransmitBuffer, 3, 10);
-
 		__HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
 	  }
 	  else
 	  {
 		  __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
 	  }
-	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, 1);
-	  uint8_t comm_and_addr[3] = {0};
-	  comm_and_addr[0] = 0;
-	  //comm_and_addr[0] |= 0;
-	  //uint8_t data_bytes[1] = {0};
+	  static uint16_t address = 0xE00;
+	  uint8_t myvbuf[3] = {0};
+	  uint8_t spi1_rx_buf[3] = {0};
 
-	  HAL_SPI_Transmit(&hspi1, comm_and_addr, 3, 10);
-	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, 0);
+	  myvbuf[0] = (uint8_t) ((cINSTRUCTION_READ << 4) + ((address >> 8) & 0xF));
+	  myvbuf[1] = (uint8_t) (address & 0xFF);
+	  //spiTransmitBuffer[2] = 0xFF;
+	  HAL_GPIO_WritePin(CAN3_CS_GPIO_Port, CAN3_CS_Pin, 1);
+	  HAL_SPI_Transmit(&hspi1, myvbuf, sizeof(myvbuf), 10);
+	  HAL_SPI_Receive(&hspi1, spi1_rx_buf, 3, 10);
+	  HAL_GPIO_WritePin(CAN3_CS_GPIO_Port, CAN3_CS_Pin, 0);
 
-	  comm_and_addr[0] = 0xF;
-	  comm_and_addr[0] |= 0x8<<4;
-	  HAL_SPI_Transmit(&hspi1, comm_and_addr, 2, 10);
-	  uint8_t received_data_spi[4] = {0};
-	  HAL_SPI_Receive(&hspi1, received_data_spi, 4, 10);
-	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, 0);
+
+	  myvbuf[0] = (uint8_t) ((cINSTRUCTION_WRITE << 4) + ((address >> 8) & 0xF));
+	  myvbuf[1] = (uint8_t) (address & 0xFF);
+	  myvbuf[2] = 0xff;
+	  HAL_GPIO_WritePin(CAN3_CS_GPIO_Port, CAN3_CS_Pin, 1);
+	  HAL_SPI_Transmit(&hspi1, myvbuf, sizeof(myvbuf), 10);
+	  //HAL_SPI_Receive(&hspi1, spi1_rx_buf, 3, 10);
+	  HAL_GPIO_WritePin(CAN3_CS_GPIO_Port, CAN3_CS_Pin, 0);
+	  address++;
+	  if(address > 0xE13)
+	  {
+		  address = 0xE00;
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -255,7 +257,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 25;
-  RCC_OscInitStruct.PLL.PLLN = 336;
+  RCC_OscInitStruct.PLL.PLLN = 168;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 7;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -269,10 +271,10 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     Error_Handler();
   }

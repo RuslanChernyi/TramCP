@@ -30,6 +30,7 @@
 #include "IO_Board.h"
 #include "Drive.h"
 #include "systick.h"
+#include "spi.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
