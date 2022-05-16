@@ -211,7 +211,21 @@ int main(void)
 	  {
 		  __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
 	  }
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, 1);
+	  uint8_t comm_and_addr[3] = {0};
+	  comm_and_addr[0] = 0;
+	  //comm_and_addr[0] |= 0;
+	  //uint8_t data_bytes[1] = {0};
 
+	  HAL_SPI_Transmit(&hspi1, comm_and_addr, 3, 10);
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, 0);
+
+	  comm_and_addr[0] = 0xF;
+	  comm_and_addr[0] |= 0x8<<4;
+	  HAL_SPI_Transmit(&hspi1, comm_and_addr, 2, 10);
+	  uint8_t received_data_spi[4] = {0};
+	  HAL_SPI_Receive(&hspi1, received_data_spi, 4, 10);
+	  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_2, 0);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
