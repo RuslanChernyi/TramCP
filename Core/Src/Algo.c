@@ -60,10 +60,12 @@ typedef struct
 	uint8_t working_with_PZ;	// Работа с ПЗ?
 }iobt_output2_t;
 
-typedef struct iobt_input2
+typedef struct iobt_input1
 {
+	uint8_t far_lights;
+	uint8_t close_lights;
 
-}iobt_input2_t;
+}iobt_input1_t;
 
 
 
