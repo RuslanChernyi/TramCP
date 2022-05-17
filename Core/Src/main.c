@@ -112,6 +112,10 @@ uint32_t modbus_message_received;
 
 uint32_t current_block;
 uint32_t allow_placement;
+
+uint8_t spi1_rx_buf[20];
+uint32_t spi_counter;
+uint8_t stop_spi_tx;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -204,30 +208,27 @@ int main(void)
 		  __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
 	  }
 	  static uint16_t address = 0xE00;
-	  uint8_t myvbuf[3] = {0};
-	  uint8_t spi1_rx_buf[3] = {0};
+	  static uint8_t myvbuf[2] = {0};
+
 
 	  myvbuf[0] = (uint8_t) ((cINSTRUCTION_READ << 4) + ((address >> 8) & 0xF));
 	  myvbuf[1] = (uint8_t) (address & 0xFF);
-	  //spiTransmitBuffer[2] = 0xFF;
-	  HAL_GPIO_WritePin(CAN3_CS_GPIO_Port, CAN3_CS_Pin, 1);
-	  HAL_SPI_Transmit(&hspi1, myvbuf, sizeof(myvbuf), 10);
-	  HAL_SPI_Receive(&hspi1, spi1_rx_buf, 3, 10);
-	  HAL_GPIO_WritePin(CAN3_CS_GPIO_Port, CAN3_CS_Pin, 0);
-
-
-	  myvbuf[0] = (uint8_t) ((cINSTRUCTION_WRITE << 4) + ((address >> 8) & 0xF));
-	  myvbuf[1] = (uint8_t) (address & 0xFF);
-	  myvbuf[2] = 0xff;
-	  HAL_GPIO_WritePin(CAN3_CS_GPIO_Port, CAN3_CS_Pin, 1);
-	  HAL_SPI_Transmit(&hspi1, myvbuf, sizeof(myvbuf), 10);
-	  //HAL_SPI_Receive(&hspi1, spi1_rx_buf, 3, 10);
-	  HAL_GPIO_WritePin(CAN3_CS_GPIO_Port, CAN3_CS_Pin, 0);
-	  address++;
-	  if(address > 0xE13)
+	  if (spi_counter == 100)
 	  {
-		  address = 0xE00;
+	  HAL_GPIO_WritePin(CAN3_CS_GPIO_Port, CAN3_CS_Pin, 0);
+	  HAL_SPI_Transmit(&hspi1, myvbuf, 2, 10);
+	  HAL_GPIO_WritePin(CAN3_CS_GPIO_Port, CAN3_CS_Pin, 1);
+	  spi_counter = 0;
 	  }
+	  else
+	  {
+		  spi_counter++;
+	  }
+//	  address++;
+//	  if(address > 0xE13)
+//	  {
+//		  address = 0xE00;
+//	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

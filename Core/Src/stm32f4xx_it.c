@@ -94,6 +94,8 @@ extern IOBoard_t io1;
 extern IOBoard_t io2;
 extern IOBoard_t io3;
 extern IOBoard_t io4;
+extern uint8_t spi1_rx_buf[20];
+extern uint8_t stop_spi_tx;
 /* USER CODE END EV */
 
 /******************************************************************************/

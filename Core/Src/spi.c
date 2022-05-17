@@ -55,7 +55,7 @@ void MX_SPI1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN SPI1_Init 2 */
-
+  SPI1->CR2 |= (1U<<6);
   /* USER CODE END SPI1_Init 2 */
 
 }
@@ -87,7 +87,7 @@ void MX_SPI2_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN SPI2_Init 2 */
-
+  SPI2->CR2 |= (1U<<6);
   /* USER CODE END SPI2_Init 2 */
 
 }
