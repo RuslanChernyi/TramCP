@@ -37,8 +37,8 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
-void SPI_Transmit (uint8_t *data, int size);
-void SPI_Receive (uint8_t *data, int size);
+void SPI_Transmit (uint8_t *data, int size, SPI_TypeDef * SPIx);
+void SPI_Receive (uint8_t *data, int size, SPI_TypeDef * SPIx);
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -171,7 +171,6 @@ int main(void)
   IOboard1Init();
   IOboard2Init();
   IOboard3Init();
-  IOboard4Init();
   HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_Base_Start_IT(&htim7);
   TxHeader.StdId = 0x01;
@@ -182,7 +181,29 @@ int main(void)
   TxHeader.TransmitGlobalTime = DISABLE;
   //SPI1->CR2 |= (1U<<6);
   SPI1->CR1 |= (1U<<6);
+  SPI2->CR1 |= (1U<<6);
+  HAL_SPI_MspDeInit(&hspi1);
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  GPIO_InitStruct.Pin = GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 0);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, 0);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_7, 0);
 
+//  HAL_SPI_MspDeInit(&hspi2);
+//	__HAL_RCC_GPIOA_CLK_ENABLE();
+//	GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
+//	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+//	GPIO_InitStruct.Pull = GPIO_NOPULL;
+//	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+//	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+//	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, 0);
+//	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0);
+//	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, 0);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -209,20 +230,17 @@ int main(void)
 	  {
 		  __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
 	  }
-	  static uint16_t address = 0xE00;
-	  static uint8_t myvbuf[2] = {0};
-	  static uint32_t my_size = 0;
+//	  static uint16_t address = 0xE00;
+//	  static uint8_t myvbuf[2] = {0};
+//	  static uint32_t my_size = 0;
+//
+//	  myvbuf[0] = (uint8_t) ((cINSTRUCTION_READ << 4) + ((address >> 8) & 0xF));
+//	  myvbuf[1] = (uint8_t) (address & 0xFF);
 
-	  myvbuf[0] = (uint8_t) ((cINSTRUCTION_READ << 4) + ((address >> 8) & 0xF));
-	  myvbuf[1] = (uint8_t) (address & 0xFF);
-
-	  HAL_GPIO_WritePin(CAN3_CS_GPIO_Port, CAN3_CS_Pin, 0);
-	  SPI_Transmit(myvbuf, sizeof(myvbuf));
-	  HAL_GPIO_WritePin(CAN3_CS_GPIO_Port, CAN3_CS_Pin, 1);
-
-	  HAL_GPIO_WritePin(CAN3_CS_GPIO_Port, CAN3_CS_Pin, 0);
-	  SPI_Receive(&spi1_rx_buf[my_size], 1);
-	  HAL_GPIO_WritePin(CAN3_CS_GPIO_Port, CAN3_CS_Pin, 1);
+//	  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 0);
+//	  SPI_Transmit(myvbuf, sizeof(myvbuf), SPI2);
+//	  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 1);
+//	  SPI_Receive(spi1_rx_buf, 20, SPI2);
 	  address++;
 	  my_size++;
 	  if(address > 0xE13)
@@ -230,9 +248,6 @@ int main(void)
 		  address = 0xE00;
 		  my_size = 0;
 	  }
-//	  HAL_GPIO_WritePin(CAN3_CS_GPIO_Port, CAN3_CS_Pin, 0);
-//	  HAL_SPI_Receive(&hspi1, spi1_rx_buf, 4, 10);
-//	  HAL_GPIO_WritePin(CAN3_CS_GPIO_Port, CAN3_CS_Pin, 1);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -262,7 +277,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 25;
-  RCC_OscInitStruct.PLL.PLLN = 336;
+  RCC_OscInitStruct.PLL.PLLN = 128;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 7;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -276,10 +291,10 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV16;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV4;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     Error_Handler();
   }
@@ -329,7 +344,7 @@ void HAL_USART_RxCpltCallback(UART_HandleTypeDef *huart)
 
 	return;
 }
-void SPI_Transmit (uint8_t *data, int size)
+void SPI_Transmit (uint8_t *data, int size, SPI_TypeDef * SPIx)
 {
 
 	/************** STEPS TO FOLLOW *****************
@@ -342,8 +357,8 @@ void SPI_Transmit (uint8_t *data, int size)
 	int i=0;
 	while (i<size)
 	{
-	   while (!((SPI1->SR)&(1<<1))) {};  // wait for TXE bit to set -> This will indicate that the buffer is empty
-	   SPI1->DR = data[i];  // load the data into the Data Register
+	   while (!((SPIx->SR)&(1<<1))) {};  // wait for TXE bit to set -> This will indicate that the buffer is empty
+	   SPIx->DR = data[i];  // load the data into the Data Register
 	   i++;
 	}
 
@@ -353,16 +368,16 @@ write operation to the SPI_DR register and BSY bit setting. As a consequence it 
 mandatory to wait first until TXE is set and then until BSY is cleared after writing the last
 data.
 */
-	while (!((SPI1->SR)&(1<<1))) {};  // wait for TXE bit to set -> This will indicate that the buffer is empty
-	while (((SPI1->SR)&(1<<7))) {};  // wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
+	while (!((SPIx->SR)&(1<<1))) {};  // wait for TXE bit to set -> This will indicate that the buffer is empty
+	while (((SPIx->SR)&(1<<7))) {};  // wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
 
 	//  Clear the Overrun flag by reading DR and SR
-	uint8_t temp = SPI1->DR;
-	temp = SPI1->SR;
+	uint8_t temp = SPIx->DR;
+	temp = SPIx->SR;
 
 }
 
-void SPI_Receive (uint8_t *data, int size)
+void SPI_Receive (uint8_t *data, int size, SPI_TypeDef * SPIx)
 {
 	/************** STEPS TO FOLLOW *****************
 	1. Wait for the BSY bit to reset in Status Register
@@ -373,10 +388,10 @@ void SPI_Receive (uint8_t *data, int size)
 
 	while (size)
 	{
-		while (((SPI1->SR)&(1<<7))) {};  // wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
-		SPI1->DR = 0;  // send dummy data
-		while (!((SPI1->SR) &(1<<0))){};  // Wait for RXNE to set -> This will indicate that the Rx buffer is not empty
-	  *data++ = (SPI1->DR);
+		while (((SPIx->SR)&(1<<7))) {};  // wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
+		SPIx->DR = 0;  // send dummy data
+		while (!((SPIx->SR) &(1<<0))){};  // Wait for RXNE to set -> This will indicate that the Rx buffer is not empty
+	  *data++ = (SPIx->DR);
 		size--;
 	}
 }

@@ -51,7 +51,7 @@ uint32_t receiveFromIO2(IOBoard_t * IOBoard);
 
 void IOboard1Init(void)
 {
-	io1.BoardNr = 1;
+	io1.BoardNr = 0;
 	io1.hcan = &hcan2;
 	io1.lastCommand = 0;
 	io1.currentCommand = 0;
@@ -60,7 +60,7 @@ void IOboard1Init(void)
 }
 void IOboard2Init(void)
 {
-	io1.BoardNr = 2;
+	io1.BoardNr = 1;
 	io1.hcan = &hcan2;
 	io1.lastCommand = 0;
 	io1.currentCommand = 0;
@@ -69,16 +69,7 @@ void IOboard2Init(void)
 }
 void IOboard3Init(void)
 {
-	io1.BoardNr = 3;
-	io1.hcan = &hcan2;
-	io1.lastCommand = 0;
-	io1.currentCommand = 0;
-	io1.nextCommand = 0;
-
-}
-void IOboard4Init(void)
-{
-	io1.BoardNr = 4;
+	io1.BoardNr = 2;
 	io1.hcan = &hcan2;
 	io1.lastCommand = 0;
 	io1.currentCommand = 0;

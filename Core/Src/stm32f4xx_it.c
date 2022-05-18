@@ -391,6 +391,20 @@ void TIM7_IRQHandler(void)
 			}
 			break;
 		case 2:
+			go_to_the_next_block = CIO(&io2);
+			if(go_to_the_next_block == YES)
+			{
+				current_block = 3;
+			}
+			break;
+		case 3:
+			go_to_the_next_block = CIO(&io3);
+			if(go_to_the_next_block == YES)
+			{
+				current_block = 4;
+			}
+			break;
+		case 4:
 			go_to_the_next_block = CDR();
 			if(go_to_the_next_block == YES)
 			{
