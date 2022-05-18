@@ -241,13 +241,13 @@ int main(void)
 //	  SPI_Transmit(myvbuf, sizeof(myvbuf), SPI2);
 //	  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 1);
 //	  SPI_Receive(spi1_rx_buf, 20, SPI2);
-	  address++;
-	  my_size++;
-	  if(address > 0xE13)
-	  {
-		  address = 0xE00;
-		  my_size = 0;
-	  }
+//	  address++;
+//	  my_size++;
+//	  if(address > 0xE13)
+//	  {
+//		  address = 0xE00;
+//		  my_size = 0;
+//	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

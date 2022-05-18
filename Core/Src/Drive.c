@@ -94,22 +94,22 @@ void placeIntoTable(void)
 	MODBUS_Table.modbus_table[0x06] = second_packet[5];
 	MODBUS_Table.modbus_table[0x07] = second_packet[6];
 	MODBUS_Table.modbus_table[0x08] = second_packet[7];
-	MODBUS_Table.imp_drv_table.U[0] = third_packet[0];
-	MODBUS_Table.imp_drv_table.U[1] = third_packet[1];
-	MODBUS_Table.imp_drv_table.I[0] = third_packet[2];
-	MODBUS_Table.imp_drv_table.I[1] = third_packet[3];
+	MODBUS_Table.imp_drv_table1.U[0] = third_packet[0];
+	MODBUS_Table.imp_drv_table1.U[1] = third_packet[1];
+	MODBUS_Table.imp_drv_table1.I[0] = third_packet[2];
+	MODBUS_Table.imp_drv_table1.I[1] = third_packet[3];
 	MODBUS_Table.modbus_table[0x09] = third_packet[4];
 	MODBUS_Table.modbus_table[0x0A] = third_packet[5];
 	MODBUS_Table.modbus_table[0x0B] = third_packet[6];
 	MODBUS_Table.modbus_table[0x0C] = third_packet[7];
-	MODBUS_Table.imp_drv_table.XTT[0] = fourth_packet[0];
-	MODBUS_Table.imp_drv_table.XTT[1] = fourth_packet[1];
-	MODBUS_Table.imp_drv_table.XTH[0] = fourth_packet[2];
-	MODBUS_Table.imp_drv_table.XTH[1] = fourth_packet[3];
-	MODBUS_Table.imp_drv_table.UY[0] = fourth_packet[4];
-	MODBUS_Table.imp_drv_table.UY[1] = fourth_packet[5];
-	MODBUS_Table.imp_drv_table.CI[0] = fourth_packet[6];
-	MODBUS_Table.imp_drv_table.CI[1] = fourth_packet[7];
+	MODBUS_Table.imp_drv_table1.XTT[0] = fourth_packet[0];
+	MODBUS_Table.imp_drv_table1.XTT[1] = fourth_packet[1];
+	MODBUS_Table.imp_drv_table1.XTH[0] = fourth_packet[2];
+	MODBUS_Table.imp_drv_table1.XTH[1] = fourth_packet[3];
+	MODBUS_Table.imp_drv_table1.UY[0] = fourth_packet[4];
+	MODBUS_Table.imp_drv_table1.UY[1] = fourth_packet[5];
+	MODBUS_Table.imp_drv_table1.CI[0] = fourth_packet[6];
+	MODBUS_Table.imp_drv_table1.CI[1] = fourth_packet[7];
 }
 
 uint32_t CDR(void)

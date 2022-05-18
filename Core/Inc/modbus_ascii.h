@@ -89,8 +89,8 @@ typedef union mdb_ascii_resp
 
 typedef union mdb_ascii_table
 {
-	impulse_drive_table_t imp_drv_table;
-	io_board_table_t	io_board_table;
+	impulse_drive_table_t imp_drv_table1;
+	io_board_table_t	io_board_table1;
 
 	uint8_t modbus_table[45];
 }modbus_ascii_table_t;
