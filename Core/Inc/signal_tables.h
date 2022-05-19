@@ -181,102 +181,176 @@ typedef struct io_board_table
 	uint8_t XA2[2];
 }io_board_table_t;
 
-//typedef struct iobt2_t
-//{
-//	struct DINs
-//	{
-//		uint8_t signal_for_driver_passanger_out1 : 1;
-//		uint8_t signal_for_driver_passanger_out2 : 1;
-//		uint8_t signal_for_driver_passanger_out3 : 1;
-//		uint8_t signal_for_apparel : 1;
-//		uint8_t signal_for_invalid_near_door : 1;
-//		uint8_t signal_for_invalid_cabin : 1;
-//		uint8_t signal_for_hv_circuit_on : 1;
-//		uint8_t signal_for_washing : 1;
-//
-//		uint8_t signal_for_arrow_under_current : 1;
-//		uint8_t signal_for_arrow_without_current : 1;
-//		uint8_t signal_for_slave_cabin : 1;
-//		uint8_t signal_for_master_cabin : 1;
-//		uint8_t signal_for_tram_disconect_1 : 1;
-//		uint8_t signal_for_static_KKB_power_on : 1;
-//		uint8_t signal_for_static_KC_power_on : 1;
-//
-//		uint8_t signal_for_tram_disconect_2 : 1;
-//	}DIN;
-//	struct DOUTs
-//	{
-//		uint8_t indication_apparel : 1;
-//		uint8_t indication_signal_PT_on : 1;
-//		uint8_t indication_signal_hv_circuit : 1;
-//		uint8_t indication_signal_from_cabin : 1;
-//		uint8_t indication_control_on : 1;
-//		uint8_t indication_tram_disconect : 1;
-//
-//		uint8_t indication_work_with_PZ : 1;
-//		uint8_t res0 : 1;
-//	}DOUT;
-//	struct analogs
-//	{
-//		uint16_t battery_voltage;
-//	}analog;
-//
-//}iobt2_t;
-//
-//typedef struct iobt1
-//{
-//	struct DINs
-//	{
-//		uint8_t signal_for_close_lights : 1;
-//		uint8_t signal_for_far_lights : 1;
-//		uint8_t signal_for_PT_lights : 1;
-//		uint8_t signal_for_half_heating : 1;
-//		uint8_t signal_for_full_heating : 1;
-//		uint8_t signal_for_left_indication : 1;
-//		uint8_t signal_for_right_indication : 1;
-//		uint8_t signal_for_work_with_PZ : 1;
-//		uint8_t signal_for_air_conditioning_for_KB : 1;
-//		uint8_t signal_for_air_conditioning_for_KC : 1;
-//	}DIN;
-//	struct DOUTs
-//	{
-//		uint8_t indication_close_lights : 1;
-//		uint8_t indication_far_lights : 1;
-//		uint8_t indication_air_conditioning_for_KB : 1;
-//		uint8_t indication_half_heating : 1;
-//		uint8_t indication_full_heating : 1;
-//		uint8_t indication_air_conditioning_for_KC : 1;
-//		uint8_t indication_left : 1;
-//		uint8_t indication_right : 1;
-//		uint8_t indication_cabin_fan : 1;
-//		uint8_t indication_warning_doors : 1;
-//	}DOUT;
-//	struct analogs
-//	{
-//		uint8_t tachogenerator_phase1;
-//		uint8_t tachogenerator_phase2;
-//	}analog;
-//}iobt1_t;
-//typedef struct iobt3
-//{
-//	struct DINs
-//	{
-//		uint8_t signal_for_dimension_lights : 1;
-//		uint8_t signal_for_turn_on_half_lighting : 1;
-//		uint8_t signal_for_turn_on_full_lighting : 1;
-//		uint8_t signal_for_turn_on_control : 1;
-//		uint8_t signal_for_unauthorized_PZ_access : 1;
-//		uint8_t signal_for_fire : 1;
-//		uint8_t signal_for_LS_state : 1;
-//	};
-//	struct DOUTs
-//	{
-//		uint8_t indication_dimension_lights : 1;
-//		uint8_t indication_half_lighting : 1;
-//		uint8_t indication_ : 1;
-//
-//	};
-//}iobt3_t;
+typedef struct iobt2_t
+{
+	struct
+	{
+		uint8_t signal_for_driver_passanger_out1 : 1;
+		uint8_t signal_for_driver_passanger_out2 : 1;
+		uint8_t signal_for_driver_passanger_out3 : 1;
+		uint8_t signal_for_apparel : 1;
+		uint8_t signal_for_invalid_near_door : 1;
+		uint8_t signal_for_invalid_cabin : 1;
+		uint8_t signal_for_hv_circuit_on : 1;
+		uint8_t signal_for_washing : 1;
+
+		uint8_t signal_for_arrow_under_current : 1;
+		uint8_t signal_for_arrow_without_current : 1;
+		uint8_t signal_for_slave_cabin : 1;
+		uint8_t signal_for_master_cabin : 1;
+		uint8_t signal_for_tram_disconect_1 : 1;
+		uint8_t signal_for_static_KKB_power_on : 1;
+		uint8_t signal_for_static_KC_power_on : 1;
+		uint8_t signal_for_tram_disconect_2 : 1;
+	}DIN;
+	struct
+	{
+		uint8_t indication_apparel : 1;
+		uint8_t indication_signal_PT_on : 1;
+		uint8_t indication_signal_hv_circuit : 1;
+		uint8_t indication_signal_from_cabin : 1;
+		uint8_t indication_control_on : 1;
+		uint8_t indication_tram_disconect : 1;
+		uint8_t indication_work_with_PZ : 1;
+		uint8_t res0 : 1;
+	}DOUT;
+	struct
+	{
+		uint16_t battery_voltage;
+	}analog;
+
+}iobt2_t;
+
+typedef struct iobt1
+{
+	struct
+	{
+		uint8_t signal_for_close_lights : 1;
+		uint8_t signal_for_far_lights : 1;
+		uint8_t signal_for_PT_lights : 1;
+		uint8_t signal_for_half_heating : 1;
+		uint8_t signal_for_full_heating : 1;
+		uint8_t signal_for_left_indication : 1;
+		uint8_t signal_for_right_indication : 1;
+		uint8_t signal_for_work_with_PZ : 1;
+		uint8_t signal_for_air_conditioning_for_KB : 1;
+		uint8_t signal_for_air_conditioning_for_KC : 1;
+	}DIN;
+	struct
+	{
+		uint8_t indication_close_lights : 1;
+		uint8_t indication_far_lights : 1;
+		uint8_t indication_air_conditioning_for_KB : 1;
+		uint8_t indication_half_heating : 1;
+		uint8_t indication_full_heating : 1;
+		uint8_t indication_air_conditioning_for_KC : 1;
+		uint8_t indication_left : 1;
+		uint8_t indication_right : 1;
+		uint8_t indication_cabin_fan : 1;
+		uint8_t indication_warning_doors : 1;
+	}DOUT;
+	struct
+	{
+		uint8_t tachogenerator_phase1;
+		uint8_t tachogenerator_phase2;
+	}analog;
+}iobt1_t;
+typedef struct iobt3
+{
+	struct
+	{
+		uint8_t signal_for_dimension_lights : 1;
+		uint8_t signal_for_turn_on_half_lighting : 1;
+		uint8_t signal_for_turn_on_full_lighting : 1;
+		uint8_t signal_for_turn_on_control : 1;
+		uint8_t signal_for_unauthorized_PZ_access : 1;
+		uint8_t signal_for_fire : 1;
+		uint8_t signal_for_LS_state : 1;
+	}DIN;
+	struct
+	{
+		uint8_t indication_dimension_lights : 1;
+		uint8_t indication_half_lighting : 1;
+		uint8_t indication_full_lighting : 1;
+		uint8_t indication_emergency_lighting : 1;
+		uint8_t indication_control_startup : 1;
+		uint8_t indication_fire : 1;
+		uint8_t indication_control_working : 1;
+		uint8_t indication_AT_cabin12_power_on : 1;
+		uint8_t indication_E1_cabin12_power_on : 1;
+		uint8_t indication_PZ_power_up : 1;
+	}DOUT;
+}iobt3_t;
+typedef struct idtA
+{
+	struct
+	{
+		uint8_t signal_for_brake : 1;
+		uint8_t signal_for_running_out_mode : 1;	// Выбег
+		uint8_t signal_for_move : 1;
+		uint8_t signal_for_forward : 1;
+		uint8_t signal_for_backward : 1;
+		uint8_t signal_for_setting_PZ1 : 1;
+		uint8_t signal_for_setting_PZ2 : 1;
+		uint8_t signal_for_setting_PZ3 : 1;
+		uint8_t signal_for_YUZ_power_off : 1;
+		uint8_t signal_for_KL1_state : 1;
+		uint8_t signal_for_KL3_state : 1;
+		uint8_t signal_for_MT1_state : 1;
+		uint8_t signal_for_PWM_move : 1;
+		uint8_t signal_for_PWM_break : 1;
+		uint8_t signal_for_E1 : 1;
+		uint8_t signal_for_E3 : 1;
+		uint8_t signal_for_AT : 1;
+		uint8_t signal_for_emergency_start : 1;
+	}DIN;
+	struct
+	{
+		uint8_t indication_KL1_power_on : 1;
+		uint8_t indication_KL3_power_on : 1;
+		uint8_t indication_breaking_of_MT1 : 1;
+		uint8_t indication_full_break_of_MT1 : 1;
+		uint8_t indication_sandboxes : 1;
+		uint8_t indication_rail_breaks : 1;
+		uint8_t indication_YUZ_signal : 1;
+		uint8_t indication_speed_equals_zero : 1;
+	}DOUT;
+};
+typedef struct idtB
+{
+	struct
+	{
+		uint8_t signal_for_brake : 1;
+		uint8_t signal_for_running_out_mode : 1;	// Выбег
+		uint8_t signal_for_move : 1;
+		uint8_t signal_for_forward : 1;
+		uint8_t signal_for_backward : 1;
+		uint8_t signal_for_setting_PZ1 : 1;
+		uint8_t signal_for_setting_PZ2 : 1;
+		uint8_t signal_for_setting_PZ3 : 1;
+		uint8_t signal_for_YUZ_power_off : 1;
+		uint8_t signal_for_KL2_state : 1;
+		uint8_t signal_for_KL4_state : 1;
+		uint8_t signal_for_MT2_state : 1;
+		uint8_t signal_for_PWM_move : 1;
+		uint8_t signal_for_PWM_break : 1;
+		uint8_t signal_for_E1 : 1;
+		uint8_t signal_for_E3 : 1;
+		uint8_t signal_for_AT : 1;
+		uint8_t signal_for_emergency_start : 1;
+	}DIN;
+	struct
+	{
+		uint8_t indication_KL2_power_on : 1;
+		uint8_t indication_KL4_power_on : 1;
+		uint8_t indication_breaking_of_MT2 : 1;
+		uint8_t indication_full_break_of_MT2 : 1;
+		uint8_t indication_sandboxes : 1;
+		uint8_t indication_rail_breaks : 1;
+		uint8_t indication_YUZ_signal : 1;
+		uint8_t indication_speed_equals_zero : 1;
+	}DOUT;
+};
 /********************** END of input-output board **********************/
 
 
