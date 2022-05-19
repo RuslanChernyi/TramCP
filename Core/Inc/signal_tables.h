@@ -181,74 +181,102 @@ typedef struct io_board_table
 	uint8_t XA2[2];
 }io_board_table_t;
 
-typedef struct iobt2_t
-{
-	struct DINs
-	{
-		uint8_t signal_for_driver_passanger_out1 : 1;
-		uint8_t signal_for_driver_passanger_out2 : 1;
-		uint8_t signal_for_driver_passanger_out3 : 1;
-		uint8_t signal_for_apparel : 1;
-		uint8_t signal_for_invalid_near_door : 1;
-		uint8_t signal_for_invalid_cabin : 1;
-		uint8_t signal_for_hv_circuit_on : 1;
-		uint8_t signal_for_washing : 1;
-
-		uint8_t signal_for_arrow_under_current : 1;
-		uint8_t signal_for_arrow_without_current : 1;
-		uint8_t signal_for_slave_cabin : 1;
-		uint8_t signal_for_master_cabin : 1;
-		uint8_t signal_for_tram_disconect_1 : 1;
-		uint8_t signal_for_static_KKB_power_on : 1;
-		uint8_t signal_for_static_KC_power_on : 1;
-
-		uint8_t signal_for_tram_disconect_2 : 1;
-	}DIN;
-	struct DOUTs
-	{
-		uint8_t indication_apparel : 1;
-		uint8_t indication_signal_PT_on : 1;
-		uint8_t indication_signal_hv_circuit : 1;
-		uint8_t indication_signal_from_cabin : 1;
-		uint8_t indication_control_on : 1;
-		uint8_t indication_tram_disconect : 1;
-
-		uint8_t indication_work_with_PZ : 1;
-		uint8_t res0 : 1;
-	}DOUT;
-	struct analogs
-	{
-		uint16_t battery_plus;
-		uint16_t battery_minus;
-	}analog;
-
-}iobt2_t;
-
-typedef struct iobt1
-{
-	struct DINs
-	{
-		uint8_t signal_for_close_lights : 1;
-		uint8_t signal_for_far_lights : 1;
-		uint8_t signal_for_PT_lights : 1;
-		uint8_t signal_for_half_heating : 1;
-		uint8_t signal_for_full_heating : 1;
-		uint8_t signal_for_left_indication : 1;
-		uint8_t signal_for_right_indication : 1;
-		uint8_t signal_for_work_with_PZ : 1;
-		uint8_t signal_for_air_conditioning_for_KB : 1;
-		uint8_t signal_for_air_conditioning_for_KC : 1;
-	}DIN;
-	struct DOUTs
-	{
-		uint8_t indication_close_lights : 1;
-		uint8_t indication_far_lights : 1;
-	}DOUT;
-	struct analogs
-	{
-
-	}analog;
-};
+//typedef struct iobt2_t
+//{
+//	struct DINs
+//	{
+//		uint8_t signal_for_driver_passanger_out1 : 1;
+//		uint8_t signal_for_driver_passanger_out2 : 1;
+//		uint8_t signal_for_driver_passanger_out3 : 1;
+//		uint8_t signal_for_apparel : 1;
+//		uint8_t signal_for_invalid_near_door : 1;
+//		uint8_t signal_for_invalid_cabin : 1;
+//		uint8_t signal_for_hv_circuit_on : 1;
+//		uint8_t signal_for_washing : 1;
+//
+//		uint8_t signal_for_arrow_under_current : 1;
+//		uint8_t signal_for_arrow_without_current : 1;
+//		uint8_t signal_for_slave_cabin : 1;
+//		uint8_t signal_for_master_cabin : 1;
+//		uint8_t signal_for_tram_disconect_1 : 1;
+//		uint8_t signal_for_static_KKB_power_on : 1;
+//		uint8_t signal_for_static_KC_power_on : 1;
+//
+//		uint8_t signal_for_tram_disconect_2 : 1;
+//	}DIN;
+//	struct DOUTs
+//	{
+//		uint8_t indication_apparel : 1;
+//		uint8_t indication_signal_PT_on : 1;
+//		uint8_t indication_signal_hv_circuit : 1;
+//		uint8_t indication_signal_from_cabin : 1;
+//		uint8_t indication_control_on : 1;
+//		uint8_t indication_tram_disconect : 1;
+//
+//		uint8_t indication_work_with_PZ : 1;
+//		uint8_t res0 : 1;
+//	}DOUT;
+//	struct analogs
+//	{
+//		uint16_t battery_voltage;
+//	}analog;
+//
+//}iobt2_t;
+//
+//typedef struct iobt1
+//{
+//	struct DINs
+//	{
+//		uint8_t signal_for_close_lights : 1;
+//		uint8_t signal_for_far_lights : 1;
+//		uint8_t signal_for_PT_lights : 1;
+//		uint8_t signal_for_half_heating : 1;
+//		uint8_t signal_for_full_heating : 1;
+//		uint8_t signal_for_left_indication : 1;
+//		uint8_t signal_for_right_indication : 1;
+//		uint8_t signal_for_work_with_PZ : 1;
+//		uint8_t signal_for_air_conditioning_for_KB : 1;
+//		uint8_t signal_for_air_conditioning_for_KC : 1;
+//	}DIN;
+//	struct DOUTs
+//	{
+//		uint8_t indication_close_lights : 1;
+//		uint8_t indication_far_lights : 1;
+//		uint8_t indication_air_conditioning_for_KB : 1;
+//		uint8_t indication_half_heating : 1;
+//		uint8_t indication_full_heating : 1;
+//		uint8_t indication_air_conditioning_for_KC : 1;
+//		uint8_t indication_left : 1;
+//		uint8_t indication_right : 1;
+//		uint8_t indication_cabin_fan : 1;
+//		uint8_t indication_warning_doors : 1;
+//	}DOUT;
+//	struct analogs
+//	{
+//		uint8_t tachogenerator_phase1;
+//		uint8_t tachogenerator_phase2;
+//	}analog;
+//}iobt1_t;
+//typedef struct iobt3
+//{
+//	struct DINs
+//	{
+//		uint8_t signal_for_dimension_lights : 1;
+//		uint8_t signal_for_turn_on_half_lighting : 1;
+//		uint8_t signal_for_turn_on_full_lighting : 1;
+//		uint8_t signal_for_turn_on_control : 1;
+//		uint8_t signal_for_unauthorized_PZ_access : 1;
+//		uint8_t signal_for_fire : 1;
+//		uint8_t signal_for_LS_state : 1;
+//	};
+//	struct DOUTs
+//	{
+//		uint8_t indication_dimension_lights : 1;
+//		uint8_t indication_half_lighting : 1;
+//		uint8_t indication_ : 1;
+//
+//	};
+//}iobt3_t;
 /********************** END of input-output board **********************/
 
 

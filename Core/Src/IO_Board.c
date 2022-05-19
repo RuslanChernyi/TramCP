@@ -60,20 +60,20 @@ void IOboard1Init(void)
 }
 void IOboard2Init(void)
 {
-	io1.BoardNr = 1;
-	io1.hcan = &hcan2;
-	io1.lastCommand = 0;
-	io1.currentCommand = 0;
-	io1.nextCommand = 0;
+	io2.BoardNr = 1;
+	io2.hcan = &hcan2;
+	io2.lastCommand = 0;
+	io2.currentCommand = 0;
+	io2.nextCommand = 0;
 
 }
 void IOboard3Init(void)
 {
-	io1.BoardNr = 2;
-	io1.hcan = &hcan2;
-	io1.lastCommand = 0;
-	io1.currentCommand = 0;
-	io1.nextCommand = 0;
+	io3.BoardNr = 2;
+	io3.hcan = &hcan2;
+	io3.lastCommand = 0;
+	io3.currentCommand = 0;
+	io3.nextCommand = 0;
 
 }
 
@@ -359,7 +359,7 @@ void ask_for_readiness(IOBoard_t * IOBoard)						/*** 1 ***/
 	TxHeader.DLC = 8;
 	TxHeader.TransmitGlobalTime = DISABLE;
 	message_Payload[0] = 0x31;
-	message_Payload[1] = IOBoard->requestedData.myboard_addr;
+	message_Payload[1] = IOBoard->BoardNr;
 	message_Payload[2] = IOBoard->requestedData.cmd;
 	message_Payload[3] = IOBoard->requestedData.element;
 	message_Payload[4] = 0x3B;
@@ -380,7 +380,7 @@ void ask_for_specific_DIN(IOBoard_t * IOBoard, uint8_t DIN)		/*** 2 ***/
 	TxHeader.DLC = 8;
 	TxHeader.TransmitGlobalTime = DISABLE;
 	message_Payload[0] = 0x31;
-	message_Payload[1] = IOBoard->requestedData.myboard_addr;
+	message_Payload[1] = IOBoard->BoardNr;
 	message_Payload[2] = IOBoard->requestedData.cmd;
 	message_Payload[3] = IOBoard->requestedData.element;
 	message_Payload[4] = 0x3B;
@@ -401,7 +401,7 @@ void ask_for_specific_ADC(IOBoard_t * IOBoard, uint8_t ADCx)	/*** 3 ***/
 	TxHeader.DLC = 8;
 	TxHeader.TransmitGlobalTime = DISABLE;
 	message_Payload[0] = 0x31;
-	message_Payload[1] = IOBoard->requestedData.myboard_addr;
+	message_Payload[1] = IOBoard->BoardNr;
 	message_Payload[2] = IOBoard->requestedData.cmd;
 	message_Payload[3] = IOBoard->requestedData.element;
 	message_Payload[4] = 0x3B;
@@ -422,7 +422,7 @@ void turn_on_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT)	/*** 4 ***/
 	TxHeader.DLC = 8;
 	TxHeader.TransmitGlobalTime = DISABLE;
 	message_Payload[0] = 0x31;
-	message_Payload[1] = IOBoard->requestedData.myboard_addr;
+	message_Payload[1] = IOBoard->BoardNr;
 	message_Payload[2] = IOBoard->requestedData.cmd;
 	message_Payload[3] = IOBoard->requestedData.element;
 	message_Payload[4] = 0x3B;
@@ -443,7 +443,7 @@ void turn_off_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT)	/*** 5 ***/
 	TxHeader.DLC = 8;
 	TxHeader.TransmitGlobalTime = DISABLE;
 	message_Payload[0] = 0x31;
-	message_Payload[1] = IOBoard->requestedData.myboard_addr;
+	message_Payload[1] = IOBoard->BoardNr;
 	message_Payload[2] = IOBoard->requestedData.cmd;
 	message_Payload[3] = IOBoard->requestedData.element;
 	message_Payload[4] = 0x3B;
@@ -464,7 +464,7 @@ void ask_for_specific_IS(IOBoard_t * IOBoard, uint8_t ISx)		/*** 6 ***/
 	TxHeader.DLC = 8;
 	TxHeader.TransmitGlobalTime = DISABLE;
 	message_Payload[0] = 0x31;
-	message_Payload[1] = IOBoard->requestedData.myboard_addr;
+	message_Payload[1] = IOBoard->BoardNr;
 	message_Payload[2] = IOBoard->requestedData.cmd;
 	message_Payload[3] = IOBoard->requestedData.element;
 	message_Payload[4] = 0x3B;
@@ -485,7 +485,7 @@ void ask_DINs(IOBoard_t * IOBoard)								/*** 7 ***/
 	TxHeader.DLC = 8;
 	TxHeader.TransmitGlobalTime = DISABLE;
 	message_Payload[0] = 0x31;
-	message_Payload[1] = IOBoard->requestedData.myboard_addr;
+	message_Payload[1] = IOBoard->BoardNr;
 	message_Payload[2] = IOBoard->requestedData.cmd;
 	message_Payload[3] = IOBoard->requestedData.element;
 	message_Payload[4] = 0x3B;
@@ -506,7 +506,7 @@ void ask_for_specific_XA(IOBoard_t * IOBoard, uint8_t XAx)		/*** 8 ***/
 	TxHeader.DLC = 8;
 	TxHeader.TransmitGlobalTime = DISABLE;
 	message_Payload[0] = 0x31;
-	message_Payload[1] = IOBoard->requestedData.myboard_addr;
+	message_Payload[1] = IOBoard->BoardNr;
 	message_Payload[2] = IOBoard->requestedData.cmd;
 	message_Payload[3] = IOBoard->requestedData.element;
 	message_Payload[4] = 0x3B;
@@ -527,7 +527,7 @@ void set_address_of_IO(IOBoard_t * IOBoard, uint8_t NewAddr)	/*** 9 ***/
 	TxHeader.DLC = 8;
 	TxHeader.TransmitGlobalTime = DISABLE;
 	message_Payload[0] = 0x31;
-	message_Payload[1] = IOBoard->requestedData.myboard_addr;
+	message_Payload[1] = IOBoard->BoardNr;
 	message_Payload[2] = IOBoard->requestedData.cmd;
 	message_Payload[3] = IOBoard->requestedData.element;
 	message_Payload[4] = 0x3B;
