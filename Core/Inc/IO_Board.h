@@ -66,7 +66,7 @@ void set_address_of_IO(IOBoard_t * IOBoard, uint8_t NewAddr);
 
 uint32_t CIO(IOBoard_t * IOBoard);
 uint32_t get_response(IOBoard_t * IOBoard);
-void RequestIO(IOBoard_t * IOBoard);
+uint32_t RequestIO(IOBoard_t * IOBoard);
 void place_into_table(IOBoard_t * IOBoard);
 
 

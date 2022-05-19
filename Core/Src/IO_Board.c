@@ -281,6 +281,7 @@ uint32_t CIO(IOBoard_t * IOBoard)
 {
 	static uint32_t current_process = 0;
 	uint32_t go_to_the_next_block = 0;
+//	uint32_t go_to_the_next_board = 0;
 	typedef enum
 	{
 		NO,
@@ -295,19 +296,16 @@ uint32_t CIO(IOBoard_t * IOBoard)
 	switch(current_process)
 	{
 		case REQUEST:
-			RequestIO(IOBoard);
+			go_to_the_next_block = RequestIO(IOBoard);
 			current_process = GET_RESPONSE;
-			go_to_the_next_block = NO;
 			break;
 		case GET_RESPONSE:
 			 get_response(IOBoard);
 			current_process = PLACE_INTO_TABLE;
-			go_to_the_next_block = NO;
 			break;
 		case PLACE_INTO_TABLE:
 			place_into_table(IOBoard);
 			current_process = REQUEST;
-			go_to_the_next_block = YES;
 			break;
 	}
 	return go_to_the_next_block;
@@ -575,9 +573,10 @@ static uint32_t ask_XAs(IOBoard_t * IOBoard)
 	return go_next;
 }
 
-void RequestIO(IOBoard_t * IOBoard)
+uint32_t RequestIO(IOBoard_t * IOBoard)
 {
 	static uint32_t next_request = 0;
+	static uint32_t go_to_the_next_board = 0;
 	uint32_t go_next = 0;
 	typedef enum requests
 	{
@@ -597,12 +596,14 @@ void RequestIO(IOBoard_t * IOBoard)
 		case DINs:
 			ask_DINs(IOBoard);
 			next_request = ISs;
+			go_to_the_next_board = NO;
 			break;
 		case ISs:
 			go_next = ask_ISs(IOBoard);
 			if(go_next == YES)
 			{
 				next_request = ADCs;
+				go_to_the_next_board = NO;
 			}
 			break;
 		case ADCs:
@@ -610,6 +611,7 @@ void RequestIO(IOBoard_t * IOBoard)
 			if(go_next == YES)
 			{
 				next_request = XAs;
+				go_to_the_next_board = NO;
 			}
 			break;
 		case XAs:
@@ -617,11 +619,13 @@ void RequestIO(IOBoard_t * IOBoard)
 			if(go_next == YES)
 			{
 				next_request = DINs;
+				go_to_the_next_board = YES;
 			}
 			break;
 		default:
 			break;
 	}
+	return go_to_the_next_board;
 }
 
 static void place_DINs(IOBoard_t * IOBoard)
