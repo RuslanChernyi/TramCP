@@ -76,6 +76,7 @@ reqest_info_t request_info;
 CAN_CONFIG can_config;
 
 modbus_ascii_table_t MODBUS_Table;
+new_MODBUSTable_uni_t New_MODBUS_Table;
 
 uint32_t MCU_CONTROL_COUNTER;
 
@@ -194,6 +195,14 @@ int main(void)
 //	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0);
 //	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, 0);
   /* USER CODE END 2 */
+  new_MODBUSTable_uni_t New_MODBUS_Table= {0};
+
+ uint32_t size_of_MODBUS_table = sizeof(New_MODBUS_Table);
+ uint32_t size_of_idtA = sizeof(New_MODBUS_Table.bit_table.idtA_struct);
+ uint32_t size_of_idtB = sizeof(New_MODBUS_Table.bit_table.idtB_struct);
+ uint32_t size_of_iobt1 = sizeof(New_MODBUS_Table.bit_table.iobt1_struct);
+ uint32_t size_of_iobt2 = sizeof(New_MODBUS_Table.bit_table.iobt2_struct);
+ uint32_t size_of_iobt3 = sizeof(New_MODBUS_Table.bit_table.iobt3_struct);
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */

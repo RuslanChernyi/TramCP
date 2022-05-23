@@ -56,6 +56,7 @@ typedef struct modbus_ascii_response_msg
 	ascii_hex_code_t slave_addr;
 	ascii_hex_code_t function;
 	ascii_hex_code_t byte_count;
+	uint8_t * data_array;
 	ascii_hex_code_t lrc_check;
 	end_word_t trailer;
 }modbus_ascii_response_msg_struct_t;

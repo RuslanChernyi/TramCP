@@ -129,6 +129,88 @@ typedef struct impulse_drive_table
 	uint8_t UY[2];
 	uint8_t CI[2];
 }impulse_drive_table_t;
+
+typedef struct new_idt
+{
+	struct
+	{
+		uint8_t TXDI:1;
+		uint8_t TXDU:1;
+		uint8_t TXDVT:1;
+		uint8_t TXDDVT1:1;
+		uint8_t DVT:1;
+		uint8_t DPIT:1;
+		uint8_t UMAX2:1;
+		uint8_t DI:1;
+	}byte_1_t;
+	struct
+	{
+		uint8_t YDET:1;
+		uint8_t YRT1:1;
+		uint8_t MT2:1;
+		uint8_t MT1:1;
+		uint8_t YK04:1;
+		uint8_t YYB:1;
+		uint8_t YKL3:1;
+		uint8_t YKL1:1;
+	}byte_2_t;
+	struct
+	{
+		uint8_t YRT2:1;
+		uint8_t XQS5:1;
+		uint8_t XZ3:1;
+		uint8_t XZ2:1;
+		uint8_t XZ1:1;
+		uint8_t XH:1;
+		uint8_t XZ:1;
+		uint8_t XP:1;
+	}byte_3_t;
+	struct
+	{
+		uint8_t XKL3:1;
+		uint8_t XKL1:1;
+		uint8_t XKYB:1;
+		uint8_t XK01:1;
+		uint8_t XT:1;
+		uint8_t XET3:1;
+		uint8_t XMT:1;
+		uint8_t XET1:1;
+	}byte_4_t;
+	struct
+	{
+		uint8_t XAT:1;
+		uint8_t XDVT5:1;
+		uint8_t XDVT4:1;
+		uint8_t XDVT3:1;
+		uint8_t XDVT2:1;
+		uint8_t XDVT1:1;
+		uint8_t TZ:1;
+		uint8_t XVENT:1;
+	}byte_5_t;
+	struct
+	{
+		uint8_t XKT:1;
+		uint8_t LED_VD13:1;
+		uint8_t LED_VD12:1;
+		uint8_t YVENT:1;
+		uint8_t XDU:1;
+		uint8_t XDI:1;
+		uint8_t XDVT:1;
+		uint8_t XDVT7:1;
+	}byte_6_t;
+	struct
+	{
+		uint8_t XDVT6:1;
+		uint8_t XV0:1;
+		uint8_t res0 : 6;
+	}byte_7_t;
+	uint8_t U[2];
+	uint8_t I[2];
+	uint8_t XTT[2];
+	uint8_t XTH[2];
+	uint8_t UY[2];
+	uint8_t CI[2];
+}new_idt_t;
 /********************** END of impulse_drive **********************/
 
 /********************** START of input-output board **********************/
@@ -142,7 +224,6 @@ typedef struct iobt_K1_K5
 	uint8_t K5:1;
 	uint8_t res:3;
 }iobt_K1_K5_t;
-
 typedef struct iobt_KS1_KS8
 {
 	uint8_t KS1:1;
@@ -154,7 +235,6 @@ typedef struct iobt_KS1_KS8
 	uint8_t KS7:1;
 	uint8_t KS8:1;
 }iobt_KS1_KS8_t;
-
 typedef struct iobt_KS9_KS12
 {
 	uint8_t KS9:1;
@@ -163,7 +243,6 @@ typedef struct iobt_KS9_KS12
 	uint8_t KS12:1;
 	uint8_t res:4;
 }iobt_KS9_KS12_t;
-
 typedef struct io_board_table
 {
 	iobt_K1_K5_t K;
@@ -180,8 +259,7 @@ typedef struct io_board_table
 	uint8_t XA1[2];
 	uint8_t XA2[2];
 }io_board_table_t;
-
-typedef struct iobt2_t
+typedef struct iobt2
 {
 	struct
 	{
@@ -216,11 +294,10 @@ typedef struct iobt2_t
 	}DOUT;
 	struct
 	{
-		uint16_t battery_voltage;
+		uint8_t battery_voltage[2];
 	}analog;
 
 }iobt2_t;
-
 typedef struct iobt1
 {
 	struct
@@ -233,8 +310,10 @@ typedef struct iobt1
 		uint8_t signal_for_left_indication : 1;
 		uint8_t signal_for_right_indication : 1;
 		uint8_t signal_for_work_with_PZ : 1;
+
 		uint8_t signal_for_air_conditioning_for_KB : 1;
 		uint8_t signal_for_air_conditioning_for_KC : 1;
+		uint8_t res0 : 6;
 	}DIN;
 	struct
 	{
@@ -246,13 +325,15 @@ typedef struct iobt1
 		uint8_t indication_air_conditioning_for_KC : 1;
 		uint8_t indication_left : 1;
 		uint8_t indication_right : 1;
+
 		uint8_t indication_cabin_fan : 1;
 		uint8_t indication_warning_doors : 1;
+		uint8_t res0 : 6;
 	}DOUT;
 	struct
 	{
-		uint8_t tachogenerator_phase1;
-		uint8_t tachogenerator_phase2;
+		uint8_t tachogenerator_phase1[2];
+		uint8_t tachogenerator_phase2[2];
 	}analog;
 }iobt1_t;
 typedef struct iobt3
@@ -266,6 +347,7 @@ typedef struct iobt3
 		uint8_t signal_for_unauthorized_PZ_access : 1;
 		uint8_t signal_for_fire : 1;
 		uint8_t signal_for_LS_state : 1;
+		uint8_t res0 : 1;
 	}DIN;
 	struct
 	{
@@ -277,8 +359,10 @@ typedef struct iobt3
 		uint8_t indication_fire : 1;
 		uint8_t indication_control_working : 1;
 		uint8_t indication_AT_cabin12_power_on : 1;
+
 		uint8_t indication_E1_cabin12_power_on : 1;
 		uint8_t indication_PZ_power_up : 1;
+		uint8_t res0 : 6;
 	}DOUT;
 }iobt3_t;
 typedef struct idtA
@@ -314,8 +398,9 @@ typedef struct idtA
 		uint8_t indication_rail_breaks : 1;
 		uint8_t indication_YUZ_signal : 1;
 		uint8_t indication_speed_equals_zero : 1;
+		uint8_t res0 : 6;
 	}DOUT;
-};
+}idtA_t;
 typedef struct idtB
 {
 	struct
@@ -349,8 +434,22 @@ typedef struct idtB
 		uint8_t indication_rail_breaks : 1;
 		uint8_t indication_YUZ_signal : 1;
 		uint8_t indication_speed_equals_zero : 1;
+		uint8_t res0 : 6;
 	}DOUT;
-};
+}idtB_t;
+typedef struct new_MODBUSTable_struct
+{
+	new_idt_t idtA_struct;
+	new_idt_t idtB_struct;
+	iobt2_t iobt2_struct;
+	iobt1_t iobt1_struct;
+	iobt3_t iobt3_struct;
+}new_MODBUSTable_t;
+typedef union new_MODBUSTable_uni
+{
+	new_MODBUSTable_t bit_table;
+	uint8_t byte_table[sizeof(new_MODBUSTable_t)];
+}new_MODBUSTable_uni_t;
 /********************** END of input-output board **********************/
 
 
