@@ -144,11 +144,13 @@ uint32_t send_modbus_response(UART_HandleTypeDef* uart, reqest_info_t * req)
 	if(req->quantity > 0)
 	{
 		uint8_t ascii_buffer[11 + req->quantity*4];
+//		uint8_t ascii_buffer[127];
 //		modbus_ascii_response_msg response;
 		/*** Get Data from Modbus table to a buffer ***/
-		uint8_t buffer[req->quantity];
+		uint32_t byte_quantity = req->quantity * 2;	// For 29 datas give 58 bytes
+		uint8_t buffer[byte_quantity];
 		int m = 0;
-		for(int n = req->starting_address; n < req->quantity*2; n++)
+		for(int n = req->starting_address; n < byte_quantity; n++)
 		{
 			buffer[m] = New_MODBUS_Table.byte_table[n];
 			m++;
@@ -159,7 +161,7 @@ uint32_t send_modbus_response(UART_HandleTypeDef* uart, reqest_info_t * req)
 		HexASCII2(req->func_code, &ascii_buffer[3]);
 		HexASCII2(req->quantity*2, &ascii_buffer[5]);
 		int j = 7;
-		for(int i = req->starting_address; i < req->quantity*2; i++)
+		for(int i = req->starting_address; i < byte_quantity; i++)
 		{
 			HexASCII2(New_MODBUS_Table.byte_table[i], &ascii_buffer[j]);
 			j += 2;
@@ -169,7 +171,7 @@ uint32_t send_modbus_response(UART_HandleTypeDef* uart, reqest_info_t * req)
 		LRC = req->slave_address;
 		LRC += req->func_code;
 		LRC += req->quantity*2;
-		for(int i = 0; i < req->quantity; i++)
+		for(int i = 0; i < byte_quantity; i++)
 		{
 			LRC += buffer[i];
 		}

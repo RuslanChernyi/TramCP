@@ -195,7 +195,7 @@ int main(void)
 //	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0);
 //	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, 0);
   /* USER CODE END 2 */
-  new_MODBUSTable_uni_t New_MODBUS_Table= {0};
+//  new_MODBUSTable_uni_t New_MODBUS_Table= {0};
 
  uint32_t size_of_MODBUS_table = sizeof(New_MODBUS_Table);
  uint32_t size_of_idtA = sizeof(New_MODBUS_Table.bit_table.idtA_struct);
