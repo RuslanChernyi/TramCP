@@ -630,6 +630,31 @@ uint32_t RequestIO(IOBoard_t * IOBoard)
 
 static void place_DINs(IOBoard_t * IOBoard)
 {
+	uint32_t board = IOBoard->RxBuffer[1];
+	enum
+	{
+		BOARD1,
+		BOARD2,
+		BOARD3
+	};
+	switch(board)
+	{
+		case BOARD1:
+			MODBUS_Table.modbus_table[0x19] = IOBoard->RxBuffer[3];
+			MODBUS_Table.modbus_table[0x1A] = IOBoard->RxBuffer[4];
+			MODBUS_Table.modbus_table[0x1B] = IOBoard->RxBuffer[5];
+			break;
+		case BOARD2:
+			MODBUS_Table.modbus_table[0x19] = IOBoard->RxBuffer[3];
+			MODBUS_Table.modbus_table[0x1A] = IOBoard->RxBuffer[4];
+			MODBUS_Table.modbus_table[0x1B] = IOBoard->RxBuffer[5];
+			break;
+		case BOARD3:
+			MODBUS_Table.modbus_table[0x19] = IOBoard->RxBuffer[3];
+			MODBUS_Table.modbus_table[0x1A] = IOBoard->RxBuffer[4];
+			MODBUS_Table.modbus_table[0x1B] = IOBoard->RxBuffer[5];
+			break;
+	}
 	MODBUS_Table.modbus_table[0x19] = IOBoard->RxBuffer[3];
 	MODBUS_Table.modbus_table[0x1A] = IOBoard->RxBuffer[4];
 	MODBUS_Table.modbus_table[0x1B] = IOBoard->RxBuffer[5];

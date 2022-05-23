@@ -22,7 +22,7 @@ extern uint8_t third_packet[8];
 extern uint8_t fourth_packet[8];
 
 extern modbus_ascii_table_t MODBUS_Table;
-
+extern new_MODBUSTable_uni_t New_MODBUS_Table;
 extern uint32_t processInIO;
 
 extern uint32_t allow_placement;
@@ -48,68 +48,104 @@ uint32_t askPacket(CAN_HandleTypeDef * hcan)
  *			receivePacket function was replaced by interrupt handling (HAL_CAN_RxFifo0MsgPendingCallback in main)
  */
 
-//uint32_t receivePacket(CAN_HandleTypeDef * hcan)
-//{
-//	// Get the packet from the FIFO
-//	if(hcan->Instance->RF1R & (3U<<0))
-//	{
-//		HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &RxHeader, RxData_fifo);
-//		for(int i = 0; i < 8; i++)
-//		{
-//			fourth_packet[i] = RxData_fifo[i];
-//		}
-//	}
-//	else if(hcan->Instance->RF0R & (3U<<0))
-//	{
-//		HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
-//		for(int i = 0; i < 8; i++)
-//		{
-//			first_packet[i] = RxData_fifo[i];
-//		}
-//		HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
-//		for(int i = 0; i < 8; i++)
-//		{
-//			second_packet[i] = RxData_fifo[i];
-//		}
-//		HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
-//		for(int i = 0; i < 8; i++)
-//		{
-//			third_packet[i] = RxData_fifo[i];
-//		}
-//	}
-//	else
-//	{
-//		return NO_PACKET_RECEIVED;
-//	}
-//}
 
 void placeIntoTable(void)
 {
-	MODBUS_Table.modbus_table[0x00] = first_packet[0];
-	MODBUS_Table.modbus_table[0x01] = second_packet[0];
-	MODBUS_Table.modbus_table[0x02] = second_packet[1];
-	MODBUS_Table.modbus_table[0x03] = second_packet[2];
-	MODBUS_Table.modbus_table[0x04] = second_packet[3];
-	MODBUS_Table.modbus_table[0x05] = second_packet[4];
-	MODBUS_Table.modbus_table[0x06] = second_packet[5];
-	MODBUS_Table.modbus_table[0x07] = second_packet[6];
-	MODBUS_Table.modbus_table[0x08] = second_packet[7];
-	MODBUS_Table.imp_drv_table1.U[0] = third_packet[0];
-	MODBUS_Table.imp_drv_table1.U[1] = third_packet[1];
-	MODBUS_Table.imp_drv_table1.I[0] = third_packet[2];
-	MODBUS_Table.imp_drv_table1.I[1] = third_packet[3];
-	MODBUS_Table.modbus_table[0x09] = third_packet[4];
-	MODBUS_Table.modbus_table[0x0A] = third_packet[5];
-	MODBUS_Table.modbus_table[0x0B] = third_packet[6];
-	MODBUS_Table.modbus_table[0x0C] = third_packet[7];
-	MODBUS_Table.imp_drv_table1.XTT[0] = fourth_packet[0];
-	MODBUS_Table.imp_drv_table1.XTT[1] = fourth_packet[1];
-	MODBUS_Table.imp_drv_table1.XTH[0] = fourth_packet[2];
-	MODBUS_Table.imp_drv_table1.XTH[1] = fourth_packet[3];
-	MODBUS_Table.imp_drv_table1.UY[0] = fourth_packet[4];
-	MODBUS_Table.imp_drv_table1.UY[1] = fourth_packet[5];
-	MODBUS_Table.imp_drv_table1.CI[0] = fourth_packet[6];
-	MODBUS_Table.imp_drv_table1.CI[1] = fourth_packet[7];
+	if((RxHeader.StdId >= 20) && (RxHeader.StdId < 30))
+	{
+		New_MODBUS_Table.byte_table[0] = first_packet[0];
+		New_MODBUS_Table.byte_table[1] = second_packet[0];
+		uint8_t x7 = (second_packet[4] & 0x7)>>1;
+		uint8_t x7_placed_as_x6 = (second_packet[4] & x7);
+		uint8_t x7_from_another_packet = (second_packet[1] & 0x1)<<7;
+		uint8_t x7_with_x6 = x7_placed_as_x6 + x7_from_another_packet;
+		New_MODBUS_Table.byte_table[2] |= x7_with_x6;
+
+		New_MODBUS_Table.byte_table[3] |= (second_packet[5]) & 0x80;
+		New_MODBUS_Table.byte_table[3] |= (second_packet[5]) & 0x40;
+		New_MODBUS_Table.byte_table[3] |= ((second_packet[5]) & 0x8)<<2;
+		New_MODBUS_Table.byte_table[3] |= ((second_packet[5]) & 0x2)<<3;
+		New_MODBUS_Table.byte_table[3] |= ((second_packet[5]) & 0x1)<<3;
+		New_MODBUS_Table.byte_table[3] |= ((second_packet[6]) & 0x20)>>3;
+		New_MODBUS_Table.byte_table[3] |= ((second_packet[6]) & 0x4)>>1;
+		New_MODBUS_Table.byte_table[3] |= ((second_packet[6]) & 0x2)>>1;
+
+
+		New_MODBUS_Table.byte_table[4] |= (second_packet[6] & 0x1)<<7;
+		New_MODBUS_Table.byte_table[4] |= (third_packet[4])>>1;
+
+		New_MODBUS_Table.byte_table[5] |= (third_packet[4] & 0x1)<<7;
+		New_MODBUS_Table.byte_table[5] |= (third_packet[5])>>1;
+
+		New_MODBUS_Table.byte_table[6] |= (third_packet[6] & 0x1)<<7;
+		New_MODBUS_Table.byte_table[6] |= (third_packet[7])<<6;
+
+		New_MODBUS_Table.byte_table[8] = third_packet[0];
+		New_MODBUS_Table.byte_table[9] = third_packet[1];
+
+		New_MODBUS_Table.byte_table[10] = third_packet[2];
+		New_MODBUS_Table.byte_table[11] = third_packet[3];
+
+		New_MODBUS_Table.byte_table[12] = fourth_packet[0];
+		New_MODBUS_Table.byte_table[13] = fourth_packet[1];
+
+		New_MODBUS_Table.byte_table[14] = fourth_packet[2];
+		New_MODBUS_Table.byte_table[15] = fourth_packet[3];
+
+		New_MODBUS_Table.byte_table[16] = fourth_packet[4];
+		New_MODBUS_Table.byte_table[17] = fourth_packet[5];
+
+		New_MODBUS_Table.byte_table[18] = fourth_packet[6];
+		New_MODBUS_Table.byte_table[19] = fourth_packet[7];
+	}
+	else if(RxHeader.StdId >= 30)
+	{
+		New_MODBUS_Table.byte_table[0+20] = first_packet[0];
+		New_MODBUS_Table.byte_table[1+20] = second_packet[0];
+		uint8_t x7 = (second_packet[4] & 0x7)>>1;
+		uint8_t x7_placed_as_x6 = (second_packet[4] & x7);
+		uint8_t x7_from_another_packet = (second_packet[1] & 0x1)<<7;
+		uint8_t x7_with_x6 = x7_placed_as_x6 + x7_from_another_packet;
+		New_MODBUS_Table.byte_table[2+20] |= x7_with_x6;
+
+		New_MODBUS_Table.byte_table[3+20] |= (second_packet[5]) & 0x80;
+		New_MODBUS_Table.byte_table[3+20] |= (second_packet[5]) & 0x40;
+		New_MODBUS_Table.byte_table[3+20] |= ((second_packet[5]) & 0x8)<<2;
+		New_MODBUS_Table.byte_table[3+20] |= ((second_packet[5]) & 0x2)<<3;
+		New_MODBUS_Table.byte_table[3+20] |= ((second_packet[5]) & 0x1)<<3;
+		New_MODBUS_Table.byte_table[3+20] |= ((second_packet[6]) & 0x20)>>3;
+		New_MODBUS_Table.byte_table[3+20] |= ((second_packet[6]) & 0x4)>>1;
+		New_MODBUS_Table.byte_table[3+20] |= ((second_packet[6]) & 0x2)>>1;
+
+
+		New_MODBUS_Table.byte_table[4+20] |= (second_packet[6] & 0x1)<<7;
+		New_MODBUS_Table.byte_table[4+20] |= (third_packet[4])>>1;
+
+		New_MODBUS_Table.byte_table[5+20] |= (third_packet[4] & 0x1)<<7;
+		New_MODBUS_Table.byte_table[5+20] |= (third_packet[5])>>1;
+
+		New_MODBUS_Table.byte_table[6+20] |= (third_packet[6] & 0x1)<<7;
+		New_MODBUS_Table.byte_table[6+20] |= (third_packet[7])<<6;
+
+		New_MODBUS_Table.byte_table[8+20] = third_packet[0];
+		New_MODBUS_Table.byte_table[9+20] = third_packet[1];
+
+		New_MODBUS_Table.byte_table[10+20] = third_packet[2];
+		New_MODBUS_Table.byte_table[11+20] = third_packet[3];
+
+		New_MODBUS_Table.byte_table[12+20] = fourth_packet[0];
+		New_MODBUS_Table.byte_table[13+20] = fourth_packet[1];
+
+		New_MODBUS_Table.byte_table[14+20] = fourth_packet[2];
+		New_MODBUS_Table.byte_table[15+20] = fourth_packet[3];
+
+		New_MODBUS_Table.byte_table[16+20] = fourth_packet[4];
+		New_MODBUS_Table.byte_table[17+20] = fourth_packet[5];
+
+		New_MODBUS_Table.byte_table[18+20] = fourth_packet[6];
+		New_MODBUS_Table.byte_table[19+20] = fourth_packet[7];
+	}
+
 }
 
 uint32_t CDR(void)

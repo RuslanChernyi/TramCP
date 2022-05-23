@@ -142,7 +142,7 @@ typedef struct new_idt
 		uint8_t DPIT:1;
 		uint8_t UMAX2:1;
 		uint8_t DI:1;
-	}byte_1_t;
+	}byte_1;
 	struct
 	{
 		uint8_t YDET:1;
@@ -153,7 +153,7 @@ typedef struct new_idt
 		uint8_t YYB:1;
 		uint8_t YKL3:1;
 		uint8_t YKL1:1;
-	}byte_2_t;
+	}byte_2;
 	struct
 	{
 		uint8_t YRT2:1;
@@ -164,7 +164,7 @@ typedef struct new_idt
 		uint8_t XH:1;
 		uint8_t XZ:1;
 		uint8_t XP:1;
-	}byte_3_t;
+	}byte_3;
 	struct
 	{
 		uint8_t XKL3:1;
@@ -175,7 +175,7 @@ typedef struct new_idt
 		uint8_t XET3:1;
 		uint8_t XMT:1;
 		uint8_t XET1:1;
-	}byte_4_t;
+	}byte_4;
 	struct
 	{
 		uint8_t XAT:1;
@@ -186,7 +186,7 @@ typedef struct new_idt
 		uint8_t XDVT1:1;
 		uint8_t TZ:1;
 		uint8_t XVENT:1;
-	}byte_5_t;
+	}byte_5;
 	struct
 	{
 		uint8_t XKT:1;
@@ -197,13 +197,13 @@ typedef struct new_idt
 		uint8_t XDI:1;
 		uint8_t XDVT:1;
 		uint8_t XDVT7:1;
-	}byte_6_t;
+	}byte_6;
 	struct
 	{
 		uint8_t XDVT6:1;
 		uint8_t XV0:1;
 		uint8_t res0 : 6;
-	}byte_7_t;
+	}byte_7;
 	uint8_t res0;
 	uint8_t U[2];
 	uint8_t I[2];
@@ -270,17 +270,22 @@ typedef struct iobt2
 		uint8_t signal_for_apparel : 1;
 		uint8_t signal_for_invalid_near_door : 1;
 		uint8_t signal_for_invalid_cabin : 1;
+		uint8_t signal_for_door1_opened : 1;
+		uint8_t signal_for_door2_opened : 1;
+
+		uint8_t singal_for_door3_opened : 1;
 		uint8_t signal_for_hv_circuit_on : 1;
 		uint8_t signal_for_washing : 1;
-
 		uint8_t signal_for_arrow_under_current : 1;
 		uint8_t signal_for_arrow_without_current : 1;
-		uint8_t signal_for_slave_cabin : 1;
 		uint8_t signal_for_master_cabin : 1;
+		uint8_t signal_for_slave_cabin : 1;
 		uint8_t signal_for_tram_disconect_1 : 1;
+
 		uint8_t signal_for_static_KKB_power_on : 1;
 		uint8_t signal_for_static_KC_power_on : 1;
 		uint8_t signal_for_tram_disconect_2 : 1;
+		uint8_t res0 : 5;
 	}DIN;
 	struct
 	{
@@ -293,7 +298,6 @@ typedef struct iobt2
 		uint8_t indication_work_with_PZ : 1;
 		uint8_t res0 : 1;
 	}DOUT;
-	uint8_t res0;
 	struct
 	{
 		uint8_t battery_voltage[2];
