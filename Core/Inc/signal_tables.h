@@ -204,6 +204,7 @@ typedef struct new_idt
 		uint8_t XV0:1;
 		uint8_t res0 : 6;
 	}byte_7_t;
+	uint8_t res0;
 	uint8_t U[2];
 	uint8_t I[2];
 	uint8_t XTT[2];
@@ -292,6 +293,7 @@ typedef struct iobt2
 		uint8_t indication_work_with_PZ : 1;
 		uint8_t res0 : 1;
 	}DOUT;
+	uint8_t res0;
 	struct
 	{
 		uint8_t battery_voltage[2];
@@ -364,6 +366,7 @@ typedef struct iobt3
 		uint8_t indication_PZ_power_up : 1;
 		uint8_t res0 : 6;
 	}DOUT;
+	uint8_t res0;
 }iobt3_t;
 typedef struct idtA
 {

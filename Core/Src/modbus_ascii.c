@@ -22,6 +22,7 @@ extern reqest_info_t request_info;
 const char ASCII_Table[] ={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
 extern modbus_ascii_table_t MODBUS_Table;
+extern new_MODBUSTable_uni_t New_MODBUS_Table;
 extern uint32_t error_notice;
 
 // Receive a request
@@ -149,7 +150,7 @@ uint32_t send_modbus_response(UART_HandleTypeDef* uart, reqest_info_t * req)
 		int m = 0;
 		for(int n = req->starting_address; n < req->quantity*2; n++)
 		{
-			buffer[m] = MODBUS_Table.modbus_table[n];
+			buffer[m] = New_MODBUS_Table.byte_table[n];
 			m++;
 		}
 		/*** Start forming ASCII message ***/
@@ -160,7 +161,7 @@ uint32_t send_modbus_response(UART_HandleTypeDef* uart, reqest_info_t * req)
 		int j = 7;
 		for(int i = req->starting_address; i < req->quantity*2; i++)
 		{
-			HexASCII2(MODBUS_Table.modbus_table[i], &ascii_buffer[j]);
+			HexASCII2(New_MODBUS_Table.byte_table[i], &ascii_buffer[j]);
 			j += 2;
 		}
 //		/*** LRC Calculation ***/
