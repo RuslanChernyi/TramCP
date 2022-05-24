@@ -195,14 +195,6 @@ int main(void)
 //	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0);
 //	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, 0);
   /* USER CODE END 2 */
-//  new_MODBUSTable_uni_t New_MODBUS_Table= {0};
-
-// uint32_t size_of_MODBUS_table = sizeof(New_MODBUS_Table);
-// uint32_t size_of_idtA = sizeof(New_MODBUS_Table.bit_table.idtA_struct);
-// uint32_t size_of_idtB = sizeof(New_MODBUS_Table.bit_table.idtB_struct);
-// uint32_t size_of_iobt1 = sizeof(New_MODBUS_Table.bit_table.iobt1_struct);
-// uint32_t size_of_iobt2 = sizeof(New_MODBUS_Table.bit_table.iobt2_struct);
-// uint32_t size_of_iobt3 = sizeof(New_MODBUS_Table.bit_table.iobt3_struct);
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -228,24 +220,7 @@ int main(void)
 	  {
 		  __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
 	  }
-//	  static uint16_t address = 0xE00;
-//	  static uint8_t myvbuf[2] = {0};
-//	  static uint32_t my_size = 0;
-//
-//	  myvbuf[0] = (uint8_t) ((cINSTRUCTION_READ << 4) + ((address >> 8) & 0xF));
-//	  myvbuf[1] = (uint8_t) (address & 0xFF);
 
-//	  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 0);
-//	  SPI_Transmit(myvbuf, sizeof(myvbuf), SPI2);
-//	  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 1);
-//	  SPI_Receive(spi1_rx_buf, 20, SPI2);
-//	  address++;
-//	  my_size++;
-//	  if(address > 0xE13)
-//	  {
-//		  address = 0xE00;
-//		  my_size = 0;
-//	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -305,28 +280,28 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 	switch(id)
 	{
 		case 20:
-			HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
+			HAL_CAN_GetRxMessage(&hcan2, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
 			for(int i = 0; i < 8; i++)
 			{
 				first_packet[i] = RxData_fifo[i];
 			}
 			break;
 		case 21:
-			HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
+			HAL_CAN_GetRxMessage(&hcan2, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
 			for(int i = 0; i < 8; i++)
 			{
 				second_packet[i] = RxData_fifo[i];
 			}
 			break;
 		case 22:
-			HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
+			HAL_CAN_GetRxMessage(&hcan2, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
 			for(int i = 0; i < 8; i++)
 			{
 				third_packet[i] = RxData_fifo[i];
 			}
 			break;
 		case 23:
-			HAL_CAN_GetRxMessage(&hcan1, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
+			HAL_CAN_GetRxMessage(&hcan2, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
 			for(int i = 0; i < 8; i++)
 			{
 				fourth_packet[i] = RxData_fifo[i];

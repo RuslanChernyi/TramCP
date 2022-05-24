@@ -5,6 +5,7 @@
 #include "can.h"
 
 #define NO_PACKET_RECEIVED	0x1
+#define STID (0x7FF<<15)
 
 typedef enum processes
 {
@@ -27,27 +28,64 @@ extern uint32_t processInIO;
 
 extern uint32_t allow_placement;
 
-uint32_t askPacket(CAN_HandleTypeDef * hcan)
+uint32_t askPacket(CAN_HandleTypeDef * hcan, uint8_t packet_to_ask)
 {
 	CAN_TxHeaderTypeDef TxHeader;
 	// Form a request
-	TxHeader.StdId = 0x14;
+	TxHeader.StdId = packet_to_ask;
 	TxHeader.ExtId = 0x00;
-	TxHeader.RTR = CAN_RTR_REMOTE;
+	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
 	TxHeader.DLC = 8;
 	TxHeader.TransmitGlobalTime = DISABLE;
 
-	uint8_t transmit_dummy = 0;
+	uint8_t dummy[8] = {0};
 	// Send a request drive board for a packet
-	HAL_CAN_AddTxMessage(hcan, &TxHeader, &transmit_dummy, (uint32_t*)CAN_TX_MAILBOX0);
+	HAL_CAN_AddTxMessage(hcan, &TxHeader, dummy, (uint32_t*)CAN_TX_MAILBOX0);
+
 	return HAL_OK;
 }
 
 /*** Notice:
  *			receivePacket function was replaced by interrupt handling (HAL_CAN_RxFifo0MsgPendingCallback in main)
  */
-
+void get_packet(CAN_HandleTypeDef * hcan)
+{
+	uint8_t id = (hcan->Instance->sFIFOMailBox[0].RIR & STID)>>21;
+	switch(id)
+	{
+		case 20:
+			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
+			for(int i = 0; i < 8; i++)
+			{
+				first_packet[i] = RxData_fifo[i];
+			}
+			break;
+		case 21:
+			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
+			for(int i = 0; i < 8; i++)
+			{
+				second_packet[i] = RxData_fifo[i];
+			}
+			break;
+		case 22:
+			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
+			for(int i = 0; i < 8; i++)
+			{
+				third_packet[i] = RxData_fifo[i];
+			}
+			break;
+		case 23:
+			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
+			for(int i = 0; i < 8; i++)
+			{
+				fourth_packet[i] = RxData_fifo[i];
+			}
+			break;
+		default:
+			break;
+	}
+}
 
 void placeIntoTable(void)
 {
@@ -152,13 +190,13 @@ uint32_t CDR(void)
 {
 	static uint32_t current_process = 0;
 	uint32_t go_to_the_next_block = 0;
-	static uint32_t timeout_counter = 0;
-
+	static uint8_t packet_to_ask = 20;
 	typedef enum
 	{
 		NO,
 		YES
 	}go_next_enum;
+	uint32_t packet = 0;
 	typedef enum IO_pocesses
 	{
 		REQUEST,
@@ -168,31 +206,27 @@ uint32_t CDR(void)
 	switch(current_process)
 	{
 		case REQUEST:
-			askPacket(&hcan1);
+			askPacket(&hcan2, packet_to_ask);
 			current_process = GET_RESPONSE;
 			go_to_the_next_block = NO;
 			break;
 		case GET_RESPONSE:
-			if(HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
-			{
-				Error_Handler();
-			}
+			get_packet(&hcan2);
 			current_process = PLACE_INTO_TABLE;
+
 			break;
 		case PLACE_INTO_TABLE:
-			if((allow_placement == YES) || timeout_counter < 5)
+			if(packet_to_ask >= 23)
 			{
 				placeIntoTable();
-				current_process = REQUEST;
 				go_to_the_next_block = YES;
-				allow_placement = NO;
-				timeout_counter = 0;
+				packet_to_ask = 20;
 			}
 			else
 			{
-				go_to_the_next_block = NO;
-				timeout_counter++;
+				packet_to_ask++;
 			}
+			current_process = REQUEST;
 			break;
 	}
 	return go_to_the_next_block;
