@@ -353,7 +353,7 @@ void ask_for_readiness(IOBoard_t * IOBoard)						/*** 1 ***/
 	IOBoard->requestedData.cmd = 0x1;
 	IOBoard->requestedData.element = 0;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = 0x0F;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -374,7 +374,7 @@ void ask_for_specific_DIN(IOBoard_t * IOBoard, uint8_t DIN)		/*** 2 ***/
 	IOBoard->requestedData.cmd = 0x2;
 	IOBoard->requestedData.element = DIN;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = 0x0F;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -395,7 +395,7 @@ void ask_for_specific_ADC(IOBoard_t * IOBoard, uint8_t ADCx)	/*** 3 ***/
 	IOBoard->requestedData.cmd = 0x3;
 	IOBoard->requestedData.element = ADCx;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = 0x0F;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -416,7 +416,7 @@ void turn_on_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT)	/*** 4 ***/
 	IOBoard->requestedData.cmd = 0x4;
 	IOBoard->requestedData.element = DOUT;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = 0x0F;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -437,7 +437,7 @@ void turn_off_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT)	/*** 5 ***/
 	IOBoard->requestedData.cmd = 0x5;
 	IOBoard->requestedData.element = DOUT;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = 0x0F;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -458,7 +458,7 @@ void ask_for_specific_IS(IOBoard_t * IOBoard, uint8_t ISx)		/*** 6 ***/
 	IOBoard->requestedData.cmd = 0x6;
 	IOBoard->requestedData.element = ISx;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = 0x0F;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -479,7 +479,7 @@ void ask_DINs(IOBoard_t * IOBoard)								/*** 7 ***/
 	IOBoard->requestedData.cmd = 0x7;
 	IOBoard->requestedData.element = 0;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = 0x0F;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -499,7 +499,7 @@ void ask_for_XA(IOBoard_t * IOBoard)							/*** 8 ***/
 
 	IOBoard->requestedData.cmd = 0x8;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = 0x0F;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -520,7 +520,7 @@ void set_address_of_IO(IOBoard_t * IOBoard, uint8_t NewAddr)	/*** 9 ***/
 	IOBoard->requestedData.cmd = 0x9;
 	IOBoard->requestedData.element = NewAddr;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = 0x0F;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
