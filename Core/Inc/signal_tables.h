@@ -273,7 +273,7 @@ typedef struct iobt2
 		uint8_t signal_for_door1_opened : 1;
 		uint8_t signal_for_door2_opened : 1;
 
-		uint8_t singal_for_door3_opened : 1;
+		uint8_t signal_for_door3_opened : 1;
 		uint8_t signal_for_hv_circuit_on : 1;
 		uint8_t signal_for_washing : 1;
 		uint8_t signal_for_arrow_under_current : 1;

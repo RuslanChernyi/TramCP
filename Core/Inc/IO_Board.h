@@ -61,7 +61,7 @@ void turn_on_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT);
 void turn_off_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT);
 void ask_for_specific_IS(IOBoard_t * IOBoard, uint8_t ISx);
 void ask_DINs(IOBoard_t * IOBoard);
-void ask_for_specific_XA(IOBoard_t * IOBoard, uint8_t XAx);
+void ask_for_XA(IOBoard_t * IOBoard);
 void set_address_of_IO(IOBoard_t * IOBoard, uint8_t NewAddr);
 
 uint32_t CIO(IOBoard_t * IOBoard);
