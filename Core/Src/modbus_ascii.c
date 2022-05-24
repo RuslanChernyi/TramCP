@@ -21,7 +21,7 @@ extern modbus_ascii_response_msg_t modbus_response_msg;
 extern reqest_info_t request_info;
 const char ASCII_Table[] ={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
-extern modbus_ascii_table_t MODBUS_Table;
+//extern modbus_ascii_table_t MODBUS_Table;
 extern new_MODBUSTable_uni_t New_MODBUS_Table;
 extern uint32_t error_notice;
 

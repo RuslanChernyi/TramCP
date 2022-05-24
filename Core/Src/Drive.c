@@ -21,7 +21,7 @@ extern uint8_t second_packet[8];
 extern uint8_t third_packet[8];
 extern uint8_t fourth_packet[8];
 
-extern modbus_ascii_table_t MODBUS_Table;
+//extern modbus_ascii_table_t MODBUS_Table;
 extern new_MODBUSTable_uni_t New_MODBUS_Table;
 extern uint32_t processInIO;
 
