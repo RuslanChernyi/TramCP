@@ -118,6 +118,9 @@ uint32_t allow_placement;
 uint8_t spi1_rx_buf[20];
 uint32_t spi_counter;
 uint8_t stop_spi_tx;
+uint8_t outputNr = 1;
+uint32_t outputToggleDelay_counter = 0;
+uint32_t direction = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -220,7 +223,37 @@ int main(void)
 	  {
 		  __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
 	  }
-
+//	  static uint8_t outputNr = 1;
+//	  static uint32_t outputToggleDelay_counter = 0;
+//	  static uint32_t direction = 0;
+//
+//
+//	  if(outputToggleDelay_counter > 1000000)
+//	  {
+//		  if(direction == 0)
+//		  {
+//			  turn_on_specific_DOUT(&io1, outputNr);
+//			  turn_on_specific_DOUT(&io2, outputNr);
+//			 // turn_on_specific_DOUT(&io3, outputNr);
+//		  }
+//		  if(direction == 1)
+//		  {
+//			  turn_off_specific_DOUT(&io1, outputNr);
+//			  turn_off_specific_DOUT(&io2, outputNr);
+////			  turn_off_specific_DOUT(&io3, outputNr);
+//		  }
+//		  outputNr++;
+//		  if(outputNr > 10)
+//		  {
+//			  outputNr = 1;
+//			  direction = (!direction & 0x1);
+//		  }
+//		  outputToggleDelay_counter = 0;
+//	  }
+//	  else
+//	  {
+//		  outputToggleDelay_counter++;
+//	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

@@ -353,7 +353,7 @@ void ask_for_readiness(IOBoard_t * IOBoard)						/*** 1 ***/
 	IOBoard->requestedData.cmd = 0x1;
 	IOBoard->requestedData.element = 0;
 
-	TxHeader.StdId = 0x0F;
+	TxHeader.StdId = 0x01;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -374,7 +374,7 @@ void ask_for_specific_DIN(IOBoard_t * IOBoard, uint8_t DIN)		/*** 2 ***/
 	IOBoard->requestedData.cmd = 0x2;
 	IOBoard->requestedData.element = DIN;
 
-	TxHeader.StdId = 0x0F;
+	TxHeader.StdId = 0x01;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -395,7 +395,7 @@ void ask_for_specific_ADC(IOBoard_t * IOBoard, uint8_t ADCx)	/*** 3 ***/
 	IOBoard->requestedData.cmd = 0x3;
 	IOBoard->requestedData.element = ADCx;
 
-	TxHeader.StdId = 0x0F;
+	TxHeader.StdId = 0x01;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -416,7 +416,7 @@ void turn_on_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT)	/*** 4 ***/
 	IOBoard->requestedData.cmd = 0x4;
 	IOBoard->requestedData.element = DOUT;
 
-	TxHeader.StdId = 0x0F;
+	TxHeader.StdId = 0x01;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -437,7 +437,7 @@ void turn_off_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT)	/*** 5 ***/
 	IOBoard->requestedData.cmd = 0x5;
 	IOBoard->requestedData.element = DOUT;
 
-	TxHeader.StdId = 0x0F;
+	TxHeader.StdId = 0x01;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -458,7 +458,7 @@ void ask_for_specific_IS(IOBoard_t * IOBoard, uint8_t ISx)		/*** 6 ***/
 	IOBoard->requestedData.cmd = 0x6;
 	IOBoard->requestedData.element = ISx;
 
-	TxHeader.StdId = 0x0F;
+	TxHeader.StdId = 0x01;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -479,7 +479,7 @@ void ask_DINs(IOBoard_t * IOBoard)								/*** 7 ***/
 	IOBoard->requestedData.cmd = 0x7;
 	IOBoard->requestedData.element = 0;
 
-	TxHeader.StdId = 0x0F;
+	TxHeader.StdId = 0x01;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -499,7 +499,7 @@ void ask_for_XA(IOBoard_t * IOBoard)							/*** 8 ***/
 
 	IOBoard->requestedData.cmd = 0x8;
 
-	TxHeader.StdId = 0x0F;
+	TxHeader.StdId = 0x01;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -520,7 +520,7 @@ void set_address_of_IO(IOBoard_t * IOBoard, uint8_t NewAddr)	/*** 9 ***/
 	IOBoard->requestedData.cmd = 0x9;
 	IOBoard->requestedData.element = NewAddr;
 
-	TxHeader.StdId = 0x0F;
+	TxHeader.StdId = 0x01;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -628,72 +628,72 @@ static void place_DINs(IOBoard_t * IOBoard)
 	{
 		case BOARD1:
 
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_close_lights 			= IOBoard->RxBuffer[4] & 0x1;	//X1
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_far_lights 				= (IOBoard->RxBuffer[4] & 0x2)>>1;	//X2
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_PT_lights 				= IOBoard->RxBuffer[3] & 0x1;	//X3
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_half_heating 			= (IOBoard->RxBuffer[3] & 0x2)>>1;	//X4
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_full_heating 			= (IOBoard->RxBuffer[3] & 0x4)>>2;	//X5
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_left_indication 			= (IOBoard->RxBuffer[3] & 0x8)>>3;	//X6
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_right_indication 		= (IOBoard->RxBuffer[3] & 0x10)>>4;	//X7
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_work_with_PZ 			= (IOBoard->RxBuffer[3] & 0x20)>>5;	//X8
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_air_conditioning_for_KB 	= (IOBoard->RxBuffer[3] & 0x40)>>6;	//X9
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_air_conditioning_for_KC 	= IOBoard->RxBuffer[3]>>7;	//X10
+			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_close_lights 			= (IOBoard->RxBuffer[4] & 0x80)>>7;	//X1
+			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_far_lights 				= (IOBoard->RxBuffer[4] & 0x40)>>6;	//X2
+			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_PT_lights 				= (IOBoard->RxBuffer[3] & 0x80)>>7;	//X3
+			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_half_heating 			= (IOBoard->RxBuffer[3] & 0x40)>>6;	//X4
+			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_full_heating 			= (IOBoard->RxBuffer[3] & 0x20)>>5;	//X5
+			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_left_indication 			= (IOBoard->RxBuffer[3] & 0x10)>>4;	//X6
+			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_right_indication 		= (IOBoard->RxBuffer[3] & 0x08)>>3;	//X7
+			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_work_with_PZ 			= (IOBoard->RxBuffer[3] & 0x04)>>2;	//X8
+			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_air_conditioning_for_KB 	= (IOBoard->RxBuffer[3] & 0x02)>>1;	//X9
+			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_air_conditioning_for_KC 	= (IOBoard->RxBuffer[3] & 0x01)>>0;	//X10
 
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_close_lights 			= IOBoard->RxBuffer[5] & 0x1;	//KS1
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_far_lights 				= (IOBoard->RxBuffer[5] & 0x2)>>1;	//KS2
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_air_conditioning_for_KB = (IOBoard->RxBuffer[5] & 0x4)>>2;	//KS3
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_half_heating 			= (IOBoard->RxBuffer[5] & 0x8)>>3;	//KS4
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_full_heating 			= (IOBoard->RxBuffer[5] & 0x10)>>4;	//KS5
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_air_conditioning_for_KC = (IOBoard->RxBuffer[5] & 0x20)>>5;	//KS6
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_left 					= (IOBoard->RxBuffer[5] & 0x40)>>6;	//KS7
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_right 					= IOBoard->RxBuffer[5]>>7;	//KS8
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_cabin_fan 				= IOBoard->RxBuffer[6] & 0x1;	//KS9
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_warning_doors 			= (IOBoard->RxBuffer[6] & 0x2)>>1;	//KS10
+			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_close_lights 			= (IOBoard->RxBuffer[5] & 0x80)>>7;	//KS1
+			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_far_lights 				= (IOBoard->RxBuffer[5] & 0x40)>>6;	//KS2
+			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_air_conditioning_for_KB = (IOBoard->RxBuffer[5] & 0x20)>>5;	//KS3
+			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_half_heating 			= (IOBoard->RxBuffer[5] & 0x10)>>4;	//KS4
+			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_full_heating 			= (IOBoard->RxBuffer[5] & 0x08)>>3;	//KS5
+			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_air_conditioning_for_KC = (IOBoard->RxBuffer[5] & 0x04)>>2;	//KS6
+			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_left 					= (IOBoard->RxBuffer[5] & 0x02)>>1;	//KS7
+			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_right 					= (IOBoard->RxBuffer[5] & 0x01)>>0;	//KS8
+			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_cabin_fan 				= (IOBoard->RxBuffer[6] & 0x80)>>7;	//KS9
+			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_warning_doors 			= (IOBoard->RxBuffer[6] & 0x40)>>6;	//KS10
 			break;
 		case BOARD2:
 
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_driver_passanger_out1 	= IOBoard->RxBuffer[4] & 0x1;	//X1
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_driver_passanger_out2 	= (IOBoard->RxBuffer[4] & 0x2)>>1;	//X2
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_driver_passanger_out3 	= IOBoard->RxBuffer[3] & 0x1;	//X3
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_apparel 					= (IOBoard->RxBuffer[3] & 0x2)>>1;	//X4
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_invalid_near_door 		= (IOBoard->RxBuffer[3] & 0x4)>>2;	//X5
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_invalid_cabin			= (IOBoard->RxBuffer[3] & 0x8)>>3;	//X6
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_door1_opened 			= (IOBoard->RxBuffer[3] & 0x10)>>4;	//X7
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_door2_opened				= (IOBoard->RxBuffer[3] & 0x20)>>5;	//X8
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_door3_opened 			= (IOBoard->RxBuffer[3] & 0x40)>>6;	//X9
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_hv_circuit_on 			= (IOBoard->RxBuffer[3] & 0x80)>>7;	//X10
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_driver_passanger_out1 	= (IOBoard->RxBuffer[4] & 0x80)>>7;	//X1
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_driver_passanger_out2 	= (IOBoard->RxBuffer[4] & 0x40)>>6;	//X2
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_driver_passanger_out3 	= (IOBoard->RxBuffer[3] & 0x80)>>7;	//X3
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_apparel 					= (IOBoard->RxBuffer[3] & 0x40)>>6;	//X4
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_invalid_near_door 		= (IOBoard->RxBuffer[3] & 0x20)>>5;	//X5
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_invalid_cabin			= (IOBoard->RxBuffer[3] & 0x10)>>4;	//X6
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_door1_opened 			= (IOBoard->RxBuffer[3] & 0x08)>>3;	//X7
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_door2_opened				= (IOBoard->RxBuffer[3] & 0x04)>>2;	//X8
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_door3_opened 			= (IOBoard->RxBuffer[3] & 0x02)>>1;	//X9
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_hv_circuit_on 			= (IOBoard->RxBuffer[3] & 0x01)>>0;	//X10
 
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_washing 					= IOBoard->RxBuffer[5] & 0x1;	//KS1
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_arrow_under_current 		= (IOBoard->RxBuffer[5] & 0x2)>>1;	//KS2
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_arrow_without_current 	= (IOBoard->RxBuffer[5] & 0x4)>>2;	//KS3
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_master_cabin 			= (IOBoard->RxBuffer[5] & 0x8)>>3;	//KS4
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_slave_cabin 				= (IOBoard->RxBuffer[5] & 0x10)>>4;	//KS5
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_tram_disconect_1 		= (IOBoard->RxBuffer[5] & 0x20)>>5;	//KS6
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_static_KKB_power_on 		= (IOBoard->RxBuffer[5] & 0x40)>>6;	//KS7
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_static_KC_power_on 		= (IOBoard->RxBuffer[5] & 0x80)>>7;	//KS8
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_tram_disconect_2 		= IOBoard->RxBuffer[6] & 0x1;	//KS9
-			New_MODBUS_Table.bit_table.iobt2_struct.DOUT.indication_control_on				= (IOBoard->RxBuffer[6] & 0x4)>>2;	//KS11
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_washing 					= (IOBoard->RxBuffer[5] & 0x80)>>7;	//KS1
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_arrow_under_current 		= (IOBoard->RxBuffer[5] & 0x40)>>6;	//KS2
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_arrow_without_current 	= (IOBoard->RxBuffer[5] & 0x20)>>5;	//KS3
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_master_cabin 			= (IOBoard->RxBuffer[5] & 0x10)>>4;	//KS4
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_slave_cabin 				= (IOBoard->RxBuffer[5] & 0x08)>>3;	//KS5
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_tram_disconect_1 		= (IOBoard->RxBuffer[5] & 0x04)>>2;	//KS6
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_static_KKB_power_on 		= (IOBoard->RxBuffer[5] & 0x02)>>1;	//KS7
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_static_KC_power_on 		= (IOBoard->RxBuffer[5] & 0x01)>>0;	//KS8
+			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_tram_disconect_2 		= (IOBoard->RxBuffer[6] & 0x80)>>7;	//KS9
+			New_MODBUS_Table.bit_table.iobt2_struct.DOUT.indication_control_on				= (IOBoard->RxBuffer[6] & 0x20)>>5;	//KS11
 			break;
 		case BOARD3:
 
-			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_dimension_lights 		= IOBoard->RxBuffer[4] & 0x1;	//X1
-			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_turn_on_half_lighting 	= (IOBoard->RxBuffer[4] & 0x2)>>1;	//X2
-			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_turn_on_full_lighting 	= IOBoard->RxBuffer[3] & 0x1;	//X3
-			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_turn_on_control 			= (IOBoard->RxBuffer[3] & 0x2)>>1;	//X4
-			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_unauthorized_PZ_access 	= (IOBoard->RxBuffer[3] & 0x4)>>1;	//X5
-			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_fire						= (IOBoard->RxBuffer[3] & 0x8)>>1;	//X6
-			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_LS_state					= (IOBoard->RxBuffer[3] & 0x10)>>1;	//X7
+			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_dimension_lights 		= (IOBoard->RxBuffer[4] & 0x80)>>7;	//X1
+			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_turn_on_half_lighting 	= (IOBoard->RxBuffer[4] & 0x40)>>6;	//X2
+			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_turn_on_full_lighting 	= (IOBoard->RxBuffer[3] & 0x80)>>7;	//X3
+			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_turn_on_control 			= (IOBoard->RxBuffer[3] & 0x40)>>6;	//X4
+			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_unauthorized_PZ_access 	= (IOBoard->RxBuffer[3] & 0x20)>>5;	//X5
+			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_fire						= (IOBoard->RxBuffer[3] & 0x10)>>4;	//X6
+			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_LS_state					= (IOBoard->RxBuffer[3] & 0x08)>>3;	//X7
 
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_dimension_lights 		= IOBoard->RxBuffer[5] & 0x1;	//KS1
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_half_lighting 			= (IOBoard->RxBuffer[5] & 0x2)>>1;	//KS2
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_full_lighting 			= (IOBoard->RxBuffer[5] & 0x4)>>2;	//KS3
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_emergency_lighting 		= (IOBoard->RxBuffer[5] & 0x8)>>3;	//KS4
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_control_startup 		= (IOBoard->RxBuffer[5] & 0x10)>>4;	//KS5
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_fire 					= (IOBoard->RxBuffer[5] & 0x20)>>5;	//KS6
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_control_working 		= (IOBoard->RxBuffer[5] & 0x40)>>6;	//KS7
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_AT_cabin12_power_on 	= (IOBoard->RxBuffer[5] & 0x80)>>7;	//KS8
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_E1_cabin12_power_on 	= IOBoard->RxBuffer[6] & 0x1;	//KS9
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_PZ_power_up 			= (IOBoard->RxBuffer[6] & 0x2)>>1;	//KS10
+			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_dimension_lights 		= (IOBoard->RxBuffer[5] & 0x80)>>7;	//KS1
+			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_half_lighting 			= (IOBoard->RxBuffer[5] & 0x40)>>6;	//KS2
+			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_full_lighting 			= (IOBoard->RxBuffer[5] & 0x20)>>5;	//KS3
+			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_emergency_lighting 		= (IOBoard->RxBuffer[5] & 0x10)>>4;	//KS4
+			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_control_startup 		= (IOBoard->RxBuffer[5] & 0x08)>>3;	//KS5
+			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_fire 					= (IOBoard->RxBuffer[5] & 0x04)>>2;	//KS6
+			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_control_working 		= (IOBoard->RxBuffer[5] & 0x02)>>1;	//KS7
+			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_AT_cabin12_power_on 	= (IOBoard->RxBuffer[5] & 0x01)>>0;	//KS8
+			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_E1_cabin12_power_on 	= (IOBoard->RxBuffer[6] & 0x80)>>7;	//KS9
+			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_PZ_power_up 			= (IOBoard->RxBuffer[6] & 0x40)>>6;	//KS10
 			break;
 		defalut:
 			break;

@@ -95,6 +95,8 @@ extern IOBoard_t io3;
 extern IOBoard_t io4;
 extern uint8_t spi1_rx_buf[20];
 extern uint8_t stop_spi_tx;
+extern uint8_t outputNr;
+extern uint32_t direction;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -352,6 +354,8 @@ void TIM7_IRQHandler(void)
 //			next_case = 1;
 //			break;
 //	}
+	uint32_t hakim = 0;
+	uint32_t mansul = 0;
 	switch(current_block)
 	{
 		case 1:
@@ -379,9 +383,34 @@ void TIM7_IRQHandler(void)
 			go_to_the_next_block = CDR();
 			if(go_to_the_next_block == YES)
 			{
-				current_block = 1;
+				current_block = 5;
 			}
 			break;
+		case 5:
+			if(direction == 0)
+			{
+				turn_on_specific_DOUT(&io1, 1);
+			}
+			else if(direction == 1)
+			{
+				turn_off_specific_DOUT(&io1, 1);
+			}
+//			direction = (!direction & 0x1);
+			current_block = 6;
+			break;
+		case 6:
+			if(direction == 0)
+			{
+				turn_on_specific_DOUT(&io2, 1);
+			}
+			else if(direction == 1)
+			{
+				turn_off_specific_DOUT(&io2, 1);
+			}
+			direction = (!direction & 0x1);
+			current_block = 1;
+			break;
+
 	}
   /* USER CODE END TIM7_IRQn 0 */
   HAL_TIM_IRQHandler(&htim7);
