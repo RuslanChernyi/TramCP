@@ -389,11 +389,13 @@ void TIM7_IRQHandler(void)
 		case 5:
 			if(direction == 0)
 			{
-				turn_on_specific_DOUT(&io1, 1);
+				turn_on_specific_DOUT(&io1, outputNr);
+
 			}
 			else if(direction == 1)
 			{
-				turn_off_specific_DOUT(&io1, 1);
+				turn_off_specific_DOUT(&io1, outputNr);
+
 			}
 //			direction = (!direction & 0x1);
 			current_block = 6;
@@ -401,13 +403,21 @@ void TIM7_IRQHandler(void)
 		case 6:
 			if(direction == 0)
 			{
-				turn_on_specific_DOUT(&io2, 1);
+				turn_on_specific_DOUT(&io2, outputNr);
 			}
 			else if(direction == 1)
 			{
-				turn_off_specific_DOUT(&io2, 1);
+				turn_off_specific_DOUT(&io2, outputNr);
 			}
-			direction = (!direction & 0x1);
+			if(outputNr > 10)
+			{
+				outputNr = 0;
+				direction = (!direction & 0x1);
+			}
+			else
+			{
+				outputNr++;
+			}
 			current_block = 1;
 			break;
 

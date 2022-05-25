@@ -92,6 +92,14 @@ void placeIntoTable(void)
 	if((RxHeader.StdId >= 20) && (RxHeader.StdId < 30))
 	{
 		New_MODBUS_Table.byte_table[0] = first_packet[0];
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDI 		= (first_packet[0] & 0x80)>>7;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDU 		= (first_packet[0] & 0x40)>>6;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDVT 	= (first_packet[0] & 0x20)>>5;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDVT1 	= (first_packet[0] & 0x10)>>4;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DVT 		= (first_packet[0] & 0x08)>>3;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DPIT 		= (first_packet[0] & 0x04)>>2;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.UMAX2 	= (first_packet[0] & 0x02)>>1;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DI 		= (first_packet[0] & 0x01)>>0;
 		New_MODBUS_Table.byte_table[1] = second_packet[0];
 		uint8_t x7 = (second_packet[4] & 0x7)>>1;
 		uint8_t x7_placed_as_x6 = (second_packet[4] & x7);

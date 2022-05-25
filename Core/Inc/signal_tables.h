@@ -137,7 +137,7 @@ typedef struct new_idt
 		uint8_t TXDI:1;
 		uint8_t TXDU:1;
 		uint8_t TXDVT:1;
-		uint8_t TXDDVT1:1;
+		uint8_t TXDVT1:1;
 		uint8_t DVT:1;
 		uint8_t DPIT:1;
 		uint8_t UMAX2:1;
