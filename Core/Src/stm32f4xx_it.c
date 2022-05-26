@@ -390,27 +390,18 @@ void TIM7_IRQHandler(void)
 			if(direction == 0)
 			{
 				turn_on_specific_DOUT(&io1, outputNr);
+				turn_on_specific_DOUT(&io2, outputNr);
 
 			}
 			else if(direction == 1)
 			{
 				turn_off_specific_DOUT(&io1, outputNr);
-
-			}
-//			direction = (!direction & 0x1);
-			current_block = 6;
-			break;
-		case 6:
-			if(direction == 0)
-			{
-				turn_on_specific_DOUT(&io2, outputNr);
-			}
-			else if(direction == 1)
-			{
 				turn_off_specific_DOUT(&io2, outputNr);
-			}
-			if(outputNr > 10)
+
+			}if(outputNr > 10)
 			{
+				//HAL_GPIO_TogglePin(XZ2_HL5_GPIO_Port, XZ2_HL5_Pin);
+				//HAL_GPIO_TogglePin(XZ1_HL4_GPIO_Port, XZ1_HL4_Pin);
 				outputNr = 0;
 				direction = (!direction & 0x1);
 			}
@@ -420,7 +411,6 @@ void TIM7_IRQHandler(void)
 			}
 			current_block = 1;
 			break;
-
 	}
   /* USER CODE END TIM7_IRQn 0 */
   HAL_TIM_IRQHandler(&htim7);

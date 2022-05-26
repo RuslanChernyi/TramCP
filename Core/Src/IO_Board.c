@@ -54,6 +54,7 @@ uint32_t receiveFromIO2(IOBoard_t * IOBoard);
 void IOboard1Init(void)
 {
 	io1.BoardNr = 0;
+	io1.messageID = 0xF;
 	io1.hcan = &hcan2;
 	io1.lastCommand = 0;
 	io1.currentCommand = 0;
@@ -63,6 +64,7 @@ void IOboard1Init(void)
 void IOboard2Init(void)
 {
 	io2.BoardNr = 1;
+	io2.messageID = 0x10;
 	io2.hcan = &hcan2;
 	io2.lastCommand = 0;
 	io2.currentCommand = 0;
@@ -72,6 +74,7 @@ void IOboard2Init(void)
 void IOboard3Init(void)
 {
 	io3.BoardNr = 2;
+	io3.messageID = 0x11;
 	io3.hcan = &hcan2;
 	io3.lastCommand = 0;
 	io3.currentCommand = 0;
@@ -129,106 +132,7 @@ uint32_t receiveFromIO(CAN_HandleTypeDef * hcan, uint8_t * receivedData, uint32_
 		return NO_PACKET_RECEIVED;
 	}
 }
-//void placeIntoTableIO(uint8_t * receivedData, IOboard_request_t * req)
-//{
-//	if(RxHeader.StdId == 119)
-//	{
-//		switch(receivedData[2])
-//		{
-//			case 1:
-//				readiness = receivedData[3];
-//				break;
-//			case 2:
-//				switch(req->element)
-//				{
-//					case 1:
-//					case 2:
-//					case 3:
-//					case 4:
-//					case 5:
-//						MODBUS_Table.modbus_table[0x19] |= receivedData[4]<<8-req->element;
-//						break;
-//					case 6:
-//					case 7:
-//					case 8:
-//					case 9:
-//					case 10:
-//					case 11:
-//					case 12:
-//					case 13:
-//						MODBUS_Table.modbus_table[0x1A] |= receivedData[4]<<13-req->element;
-//						break;
-//					case 14:
-//					case 15:
-//					case 16:
-//					case 17:
-//						MODBUS_Table.modbus_table[0x1B] |= receivedData[4]<<21-req->element;
-//					default:
-//						break;
-//				}
-//			case 3:
-//
-//				switch(req->element)
-//				{
-//					case CH2:
-//						MODBUS_Table.modbus_table[0x1C] = receivedData[6];
-//						MODBUS_Table.modbus_table[0x1D] = receivedData[5];
-//						break;
-//					case CH3:
-//						MODBUS_Table.modbus_table[0x1E] = receivedData[6];
-//						MODBUS_Table.modbus_table[0x1F] = receivedData[5];
-//						break;
-//					case CH4:
-//						MODBUS_Table.modbus_table[0x20] = receivedData[6];
-//						MODBUS_Table.modbus_table[0x21] = receivedData[5];
-//						break;
-//					case CH5:
-//						MODBUS_Table.modbus_table[0x22] = receivedData[6];
-//						MODBUS_Table.modbus_table[0x23] = receivedData[5];
-//						break;
-//					case CH7:
-//						MODBUS_Table.modbus_table[0x24] = receivedData[6];
-//						MODBUS_Table.modbus_table[0x25] = receivedData[5];
-//						break;
-//					case CH14:
-//						MODBUS_Table.modbus_table[0x26] = receivedData[6];
-//						MODBUS_Table.modbus_table[0x27] = receivedData[5];
-//						break;
-//					case CH15:
-//						MODBUS_Table.modbus_table[0x28] = receivedData[6];
-//						MODBUS_Table.modbus_table[0x29] = receivedData[5];
-//						break;
-//					default:
-//						break;
-//				}
-//			case 4:
-//				is_io_set = receivedData[4];
-//				break;
-//			case 5:
-//				is_io_set = receivedData[3];
-//				break;
-//			case 6:/*** !!!!!!!!!!!!!!!!!!!! ***/
-//				break;
-//			case 7:
-//				MODBUS_Table.modbus_table[0x19] = receivedData[3];
-//				MODBUS_Table.modbus_table[0x1A] = receivedData[4];
-//				MODBUS_Table.modbus_table[0x1B] = receivedData[5];
-//			case 8:
-//				switch(receivedData[3])
-//				{
-//					case XA1:
-//						MODBUS_Table.modbus_table[0x2A] = receivedData[5];
-//						MODBUS_Table.modbus_table[0x2B] = receivedData[4];
-//						break;
-//					case XA2:
-//						MODBUS_Table.modbus_table[0x2C] = receivedData[5];
-//						MODBUS_Table.modbus_table[0x2D] = receivedData[4];
-//						break;
-//				}
-//				break;
-//		}
-//	}
-//}
+
 void IOboard_request(CAN_HandleTypeDef * hcan, uint32_t boardNumber, uint32_t cmd, IOboard_request_t * req)
 {
 	uint32_t increment;
@@ -284,7 +188,6 @@ uint32_t CIO(IOBoard_t * IOBoard)
 {
 	static uint32_t current_process = 0;
 	uint32_t go_to_the_next_block = 0;
-//	uint32_t go_to_the_next_board = 0;
 	typedef enum
 	{
 		NO,
@@ -353,7 +256,7 @@ void ask_for_readiness(IOBoard_t * IOBoard)						/*** 1 ***/
 	IOBoard->requestedData.cmd = 0x1;
 	IOBoard->requestedData.element = 0;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = IOBoard->messageID;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -374,7 +277,7 @@ void ask_for_specific_DIN(IOBoard_t * IOBoard, uint8_t DIN)		/*** 2 ***/
 	IOBoard->requestedData.cmd = 0x2;
 	IOBoard->requestedData.element = DIN;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = IOBoard->messageID;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -395,7 +298,7 @@ void ask_for_specific_ADC(IOBoard_t * IOBoard, uint8_t ADCx)	/*** 3 ***/
 	IOBoard->requestedData.cmd = 0x3;
 	IOBoard->requestedData.element = ADCx;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = IOBoard->messageID;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -416,7 +319,7 @@ void turn_on_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT)	/*** 4 ***/
 	IOBoard->requestedData.cmd = 0x4;
 	IOBoard->requestedData.element = DOUT;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = IOBoard->messageID;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -437,7 +340,7 @@ void turn_off_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT)	/*** 5 ***/
 	IOBoard->requestedData.cmd = 0x5;
 	IOBoard->requestedData.element = DOUT;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = IOBoard->messageID;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -458,7 +361,7 @@ void ask_for_specific_IS(IOBoard_t * IOBoard, uint8_t ISx)		/*** 6 ***/
 	IOBoard->requestedData.cmd = 0x6;
 	IOBoard->requestedData.element = ISx;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = IOBoard->messageID;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -479,7 +382,7 @@ void ask_DINs(IOBoard_t * IOBoard)								/*** 7 ***/
 	IOBoard->requestedData.cmd = 0x7;
 	IOBoard->requestedData.element = 0;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = IOBoard->messageID;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -499,7 +402,7 @@ void ask_for_XA(IOBoard_t * IOBoard)							/*** 8 ***/
 
 	IOBoard->requestedData.cmd = 0x8;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = IOBoard->messageID;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
@@ -520,7 +423,7 @@ void set_address_of_IO(IOBoard_t * IOBoard, uint8_t NewAddr)	/*** 9 ***/
 	IOBoard->requestedData.cmd = 0x9;
 	IOBoard->requestedData.element = NewAddr;
 
-	TxHeader.StdId = 0x01;
+	TxHeader.StdId = IOBoard->messageID;
 	TxHeader.ExtId = 0x00;
 	TxHeader.RTR = CAN_RTR_DATA;
 	TxHeader.IDE = CAN_ID_STD;
