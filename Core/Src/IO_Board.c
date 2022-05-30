@@ -56,6 +56,7 @@ void IOboard1Init(void)
 	io1.BoardNr = 0;
 	//io1.messageID = (uint32_t)0xFU<<5;
 	io1.messageID = (uint32_t)0xFU;
+	io1.receivedID = 0xF0;
 	io1.hcan = &hcan2;
 	io1.lastCommand = 0;
 	io1.currentCommand = 0;
@@ -66,6 +67,7 @@ void IOboard2Init(void)
 {
 	io2.BoardNr = 1;
 	io2.messageID = (uint32_t)0x10U;
+	io2.receivedID = 0xF1;
 	io2.hcan = &hcan2;
 	io2.lastCommand = 0;
 	io2.currentCommand = 0;
@@ -76,6 +78,7 @@ void IOboard3Init(void)
 {
 	io3.BoardNr = 2;
 	io3.messageID = (uint32_t)0x11U;
+	io3.receivedID = 0xF2;
 	io3.hcan = &hcan2;
 	io3.lastCommand = 0;
 	io3.currentCommand = 0;
@@ -223,7 +226,7 @@ uint32_t get_response(IOBoard_t * IOBoard)
 	// Check if something was received
 	if(IOBoard->hcan->Instance->RF0R & (0x3<<0))
 	{
-		if((IOBoard->hcan->Instance->sFIFOMailBox->RIR>>21) == (IOBoard->BoardNr))
+		if((IOBoard->hcan->Instance->sFIFOMailBox->RIR>>21) == (IOBoard->receivedID))
 		{
 			HAL_CAN_GetRxMessage(IOBoard->hcan, CAN_RX_FIFO0, &RxHeader, IOBoard->RxBuffer);
 		}
@@ -234,7 +237,7 @@ uint32_t get_response(IOBoard_t * IOBoard)
 	}
 	else if(IOBoard->hcan->Instance->RF1R & (0x3<<0))
 	{
-		if((IOBoard->hcan->Instance->sFIFOMailBox->RIR>>21) == (IOBoard->BoardNr))
+		if((IOBoard->hcan->Instance->sFIFOMailBox->RIR>>21) == (IOBoard->receivedID))
 		{
 			HAL_CAN_GetRxMessage(IOBoard->hcan, CAN_RX_FIFO1, &RxHeader, IOBoard->RxBuffer);
 		}

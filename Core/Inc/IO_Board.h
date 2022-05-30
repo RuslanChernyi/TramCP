@@ -36,6 +36,7 @@ typedef struct IOBoard
 {
 	uint32_t BoardNr;
 	uint32_t messageID;
+	uint32_t receivedID;
 	CAN_HandleTypeDef * hcan;
 	uint32_t lastCommand;
 	uint32_t currentCommand;
