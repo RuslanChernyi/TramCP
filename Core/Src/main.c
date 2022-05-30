@@ -187,16 +187,6 @@ int main(void)
   SPI1->CR1 |= (1U<<6);
   SPI2->CR1 |= (1U<<6);
 
-//  HAL_SPI_MspDeInit(&hspi2);
-//	__HAL_RCC_GPIOA_CLK_ENABLE();
-//	GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
-//	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-//	GPIO_InitStruct.Pull = GPIO_NOPULL;
-//	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
-//	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-//	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, 0);
-//	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, 0);
-//	HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, 0);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -223,37 +213,7 @@ int main(void)
 	  {
 		  __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
 	  }
-//	  static uint8_t outputNr = 1;
-//	  static uint32_t outputToggleDelay_counter = 0;
-//	  static uint32_t direction = 0;
-//
-//
-//	  if(outputToggleDelay_counter > 1000000)
-//	  {
-//		  if(direction == 0)
-//		  {
-//			  turn_on_specific_DOUT(&io1, outputNr);
-//			  turn_on_specific_DOUT(&io2, outputNr);
-//			 // turn_on_specific_DOUT(&io3, outputNr);
-//		  }
-//		  if(direction == 1)
-//		  {
-//			  turn_off_specific_DOUT(&io1, outputNr);
-//			  turn_off_specific_DOUT(&io2, outputNr);
-////			  turn_off_specific_DOUT(&io3, outputNr);
-//		  }
-//		  outputNr++;
-//		  if(outputNr > 10)
-//		  {
-//			  outputNr = 1;
-//			  direction = (!direction & 0x1);
-//		  }
-//		  outputToggleDelay_counter = 0;
-//	  }
-//	  else
-//	  {
-//		  outputToggleDelay_counter++;
-//	  }
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -347,7 +307,6 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 }
 void HAL_USART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-
 	return;
 }
 void SPI_Transmit (uint8_t *data, int size, SPI_TypeDef * SPIx)

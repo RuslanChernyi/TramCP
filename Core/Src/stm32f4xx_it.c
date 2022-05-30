@@ -297,65 +297,6 @@ void TIM7_IRQHandler(void)
 	static uint32_t current_block = 1;
 	uint32_t go_to_the_next_block = 0;
 	/*** Meandr for CPU control ***/
-	if(MCU_CONTROL_COUNTER == 10)
-	{
-		HAL_GPIO_TogglePin(MCU_CONTROL_MEANDR_GPIO_Port, MCU_CONTROL_MEANDR_Pin);
-		MCU_CONTROL_COUNTER = 0;
-		HAL_GPIO_TogglePin(XZ1_HL4_GPIO_Port, XZ1_HL4_Pin);
-	}
-	else
-	{
-		MCU_CONTROL_COUNTER++;
-	}
-
-	/*** Request data from drive board ***/
-//	switch(next_case)
-//	{
-//		case 1:
-//			askPacket(&hcan1);
-//			next_case = 2;
-//			break;
-//		case 2:
-//			if(HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
-//			{
-//				Error_Handler();
-//			}
-//			next_case = 3;
-//			break;
-//		case 3:
-//			placeIntoTable();
-//			next_case = 4;
-//			break;
-//		case 4:
-//			IOboard_request(&hcan2, 0, cmd_for_IOboard, &IOboard_req);
-//			next_case = 5;
-//			break;
-//		case 5:
-//			receiveFromIO(&hcan2, RxData_fifo, 119);
-//			next_case = 6;
-//			break;
-//		case 6:
-//			placeIntoTableIO(RxData_fifo, &IOboard_req);
-//			if((cmd_for_IOboard == 3) && ((IOboard_adc_in_process > 0) && (IOboard_adc_in_process < 7)))
-//			{
-//				cmd_for_IOboard = 3;
-//				next_case = 4;
-//			}
-//			else
-//			{
-//				cmd_for_IOboard++;
-//				next_case = 7;
-//			}
-//			break;
-//		case 7:
-//			CIO(&io1);
-//			next_case = 8;
-//		default:
-//			next_case = 1;
-//			break;
-//	}
-	uint32_t hakim = 0;
-	uint32_t mansul = 0;
 	switch(current_block)
 	{
 		case 1:
@@ -400,8 +341,8 @@ void TIM7_IRQHandler(void)
 
 			}if(outputNr > 10)
 			{
-				//HAL_GPIO_TogglePin(XZ2_HL5_GPIO_Port, XZ2_HL5_Pin);
-				//HAL_GPIO_TogglePin(XZ1_HL4_GPIO_Port, XZ1_HL4_Pin);
+				HAL_GPIO_TogglePin(XZ2_HL5_GPIO_Port, XZ2_HL5_Pin);
+				HAL_GPIO_TogglePin(XZ1_HL4_GPIO_Port, XZ1_HL4_Pin);
 				outputNr = 0;
 				direction = (!direction & 0x1);
 			}
