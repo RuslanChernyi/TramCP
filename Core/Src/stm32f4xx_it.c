@@ -97,6 +97,7 @@ extern uint8_t spi1_rx_buf[20];
 extern uint8_t stop_spi_tx;
 extern uint8_t outputNr;
 extern uint32_t direction;
+extern uint8_t spi_receive_blahbuffer[4];
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -362,55 +363,4 @@ void TIM7_IRQHandler(void)
 
 /* USER CODE BEGIN 1 */
 
-//	if((usart1_receive_buffer[0]) == ':')	//(usart1_receive_buffer[0])	//USART1->DR
-//	{
-//	  //usart1_receive_buffer[0] = ':';
-//	  HAL_UART_Receive_IT(&huart1, &usart1_receive_buffer[1], 16);
-//	  modbus_message_received = 1;
-//
-//	}
-//	static uint32_t usart1_counter = 0;
-//	static uint32_t k = 1;
-//	static uint32_t start_reading = 0;
-//	if((usart1_receive_buffer[0] = USART1->DR) == ':')
-//	{
-//		HAL_UART_Receive_IT(&huart1, &usart1_receive_buffer[1], 16, 1);
-//		modbus_message_received = 1;
-//	}
-//	else
-//	{
-//		modbus_message_received = 0;
-//	}
-
-//	if((USART1->SR & (1U<<5)))
-//	{
-//		if(USART1->DR == ':')
-//		{
-//			usart1_receive_buffer[0] = ':';
-//			k = 1;
-//		}
-//		else if(USART1->DR == CR_CODE)
-//		{
-//			usart1_receive_buffer[15] = CR_CODE;
-//		}
-//		else if(USART1->DR == LF_CODE)
-//		{
-//			usart1_receive_buffer[16] = LF_CODE;
-//			k = 1;
-//			modbus_message_received = 1;
-//		}
-//		else
-//		{
-//			usart1_receive_buffer[k] = USART1->DR;
-//			k++;
-//		}
-//	}
-//  position_in_program = IN_USART1_INTERRUPT;
-//  uint32_t modbus_error = 0;
-//  reqest_info_t req = {0};
-//  modbus_error = receive_modbus_request(&huart1, &req);
-////  if(modbus_error == 0)
-////  {
-//	  send_modbus_response(&huart1, &req);
-////  }
 /* USER CODE END 1 */

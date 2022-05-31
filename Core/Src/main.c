@@ -37,8 +37,7 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
-void SPI_Transmit (uint8_t *data, int size, SPI_TypeDef * SPIx);
-void SPI_Receive (uint8_t *data, int size, SPI_TypeDef * SPIx);
+
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -121,6 +120,7 @@ uint8_t stop_spi_tx;
 uint8_t outputNr = 1;
 uint32_t outputToggleDelay_counter = 0;
 uint32_t direction = 0;
+uint8_t spi_receive_blahbuffer[4];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -183,10 +183,9 @@ int main(void)
   TxHeader.IDE = CAN_ID_STD;
   TxHeader.DLC = 8;
   TxHeader.TransmitGlobalTime = DISABLE;
-  //SPI1->CR2 |= (1U<<6);
-  SPI1->CR1 |= (1U<<6);
+//  SPI1->CR1 |= (1U<<6);
   SPI2->CR1 |= (1U<<6);
-
+ // SPI2->CR2 |= (1U<<6);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -213,10 +212,33 @@ int main(void)
 	  {
 		  __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
 	  }
+	  static uint32_t initi = 0;
+	  if(initi == 0)
+	  {
+		  spi_receive_blahbuffer[0] = 0;
+		  spi_receive_blahbuffer[1] = 1;
+		  spi_receive_blahbuffer[2] = 2;
+		  spi_receive_blahbuffer[3] = 3;
+	  }
+	  initi = 1;
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  uint8_t spi_transmit_buffer[4] = {0};
+
+	  uint16_t address = 0;
+//	  spi_transmit_buffer[0] = (uint8_t) ((cINSTRUCTION_READ << 4) + ((address >> 8) & 0xF));
+//	  spi_transmit_buffer[1] = (uint8_t) (address & 0xFF);
+
+	  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 0);
+	  SPI_Transmit(spi_transmit_buffer, 2, SPI2);
+	  if(hspi2.Instance->SR & (1U<<0))	// If receive buffer not empty
+	  {
+		  SPI_Receive(spi_receive_blahbuffer, 1, SPI2);
+	  }
+	  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 1);
+
   }
   /* USER CODE END 3 */
 }
@@ -243,7 +265,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 25;
-  RCC_OscInitStruct.PLL.PLLN = 168;
+  RCC_OscInitStruct.PLL.PLLN = 336;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 7;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -257,10 +279,10 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
   {
     Error_Handler();
   }
