@@ -41,7 +41,7 @@ uint32_t askPacket(CAN_HandleTypeDef * hcan, uint8_t packet_to_ask)
 
 	uint8_t dummy[8] = {0};
 	// Send a request drive board for a packet
-	HAL_CAN_AddTxMessage(hcan, &TxHeader, dummy, (uint32_t*)CAN_TX_MAILBOX0);
+	HAL_CAN_AddTxMessage(hcan, &TxHeader, dummy, (uint32_t*)CAN_TX_MAILBOX1);
 
 	return HAL_OK;
 }
@@ -51,7 +51,7 @@ uint32_t askPacket(CAN_HandleTypeDef * hcan, uint8_t packet_to_ask)
  */
 void get_packet(CAN_HandleTypeDef * hcan)
 {
-	uint32_t id = (hcan->Instance->sFIFOMailBox[0].RIR & STID)>>21;
+	uint32_t id = (hcan->Instance->sFIFOMailBox[0].RIR)>>21;
 	switch(id)
 	{
 		case 20:
@@ -83,6 +83,7 @@ void get_packet(CAN_HandleTypeDef * hcan)
 			}
 			break;
 		default:
+			hcan->Instance->RF0R &= ~(1U<<4);
 			break;
 	}
 }
