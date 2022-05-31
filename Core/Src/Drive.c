@@ -92,122 +92,150 @@ static void place(void)
 {
 	if((RxHeader.StdId >= 20) && (RxHeader.StdId < 30))
 	{
-		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDI 		= (first_packet[0] & 0x80)>>7;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDU 		= (first_packet[0] & 0x40)>>6;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDVT 	= (first_packet[0] & 0x20)>>5;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDVT1 	= (first_packet[0] & 0x10)>>4;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DVT 		= (first_packet[0] & 0x08)>>3;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DPIT 		= (first_packet[0] & 0x04)>>2;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_1.UMAX2 	= (first_packet[0] & 0x02)>>1;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DI 		= (first_packet[0] & 0x01)>>0;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDI 		= 0;//(first_packet[0] & 0x80)>>7;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDU 		= 0;//(first_packet[0] & 0x40)>>6;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDVT 	= 0;//(first_packet[0] & 0x20)>>5;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDVT1 	= 0;//(first_packet[0] & 0x10)>>4;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DVT 		= 0;//(first_packet[0] & 0x08)>>3;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DPIT 		= 0;//(first_packet[0] & 0x04)>>2;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.UMAX2 	= 0;//(first_packet[0] & 0x02)>>1;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DI 		= 0;//(first_packet[0] & 0x01)>>0;
 
-		New_MODBUS_Table.bit_table.idtA_struct.byte_2.TXDI 		= (first_packet[0] & 0x80)>>7;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_2.TXDU 		= (first_packet[0] & 0x40)>>6;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_2.TXDVT 	= (first_packet[0] & 0x20)>>5;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_2.TXDVT1 	= (first_packet[0] & 0x10)>>4;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_2.DVT 		= (first_packet[0] & 0x08)>>3;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_2.DPIT 		= (first_packet[0] & 0x04)>>2;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_2.UMAX2 	= (first_packet[0] & 0x02)>>1;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_2.DI 		= (first_packet[0] & 0x01)>>0;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_2.YDET 		= (second_packet[0] & 0x80)>>7;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_2.YRT1 		= (second_packet[0] & 0x40)>>6;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_2.MT2 		= (second_packet[0] & 0x20)>>5;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_2.MT1 		= (second_packet[0] & 0x10)>>4;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_2.YK04 		= (second_packet[0] & 0x08)>>3;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_2.YYB 		= (second_packet[0] & 0x04)>>2;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_2.YKL3 		= (second_packet[0] & 0x02)>>1;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_2.YKL1		= (second_packet[0] & 0x01)>>0;
 
-//		New_MODBUS_Table.bit_table.idtA_struct.byte_3.TXDI 		= (first_packet[0] & 0x80)>>7;
-//		New_MODBUS_Table.bit_table.idtA_struct.byte_3.TXDU 		= (first_packet[0] & 0x40)>>6;
-//		New_MODBUS_Table.bit_table.idtA_struct.byte_3.TXDVT 	= (first_packet[0] & 0x20)>>5;
-//		New_MODBUS_Table.bit_table.idtA_struct.byte_3.TXDVT1 	= (first_packet[0] & 0x10)>>4;
-//		New_MODBUS_Table.bit_table.idtA_struct.byte_3.DVT 		= (first_packet[0] & 0x08)>>3;
-//		New_MODBUS_Table.bit_table.idtA_struct.byte_3.DPIT 		= (first_packet[0] & 0x04)>>2;
-//		New_MODBUS_Table.bit_table.idtA_struct.byte_3.UMAX2 	= (first_packet[0] & 0x02)>>1;
-//		New_MODBUS_Table.bit_table.idtA_struct.byte_3.DI 		= (first_packet[0] & 0x01)>>0;
-		New_MODBUS_Table.byte_table[1] = second_packet[0];
-		uint8_t x7 = (second_packet[4] & 0x7)>>1;
-		uint8_t x7_placed_as_x6 = (second_packet[4] & x7);
-		uint8_t x7_from_another_packet = (second_packet[1] & 0x1)<<7;
-		uint8_t x7_with_x6 = x7_placed_as_x6 + x7_from_another_packet;
-		New_MODBUS_Table.byte_table[2] |= x7_with_x6;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_3.YRT2 		= (second_packet[1] & 0x01)>>0;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_3.XSQ5 		= (second_packet[4] & 0x80)>>7;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_3.XZ3 		= (second_packet[4] & 0x20)>>5;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_3.XZ2 		= (second_packet[4] & 0x10)>>4;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_3.XZ1 		= (second_packet[4] & 0x08)>>3;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_3.XH 		= (second_packet[4] & 0x04)>>2;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_3.XZ 		= (second_packet[4] & 0x02)>>1;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_3.XP 		= (second_packet[4] & 0x01)>>0;
 
-		New_MODBUS_Table.byte_table[3] |= (second_packet[5]) & 0x80;
-		New_MODBUS_Table.byte_table[3] |= (second_packet[5]) & 0x40;
-		New_MODBUS_Table.byte_table[3] |= ((second_packet[5]) & 0x8)<<2;
-		New_MODBUS_Table.byte_table[3] |= ((second_packet[5]) & 0x2)<<3;
-		New_MODBUS_Table.byte_table[3] |= ((second_packet[5]) & 0x1)<<3;
-		New_MODBUS_Table.byte_table[3] |= ((second_packet[6]) & 0x20)>>3;
-		New_MODBUS_Table.byte_table[3] |= ((second_packet[6]) & 0x4)>>1;
-		New_MODBUS_Table.byte_table[3] |= ((second_packet[6]) & 0x2)>>1;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_4.XKL3 		= (second_packet[5] & 0x80)>>7;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_4.XKL1 		= (second_packet[5] & 0x40)>>6;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_4.XKYB 		= (second_packet[5] & 0x08)>>3;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_4.XK01 		= (second_packet[5] & 0x02)>>1;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_4.XT 		= (second_packet[5] & 0x01)>>0;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_4.XET3 		= (second_packet[6] & 0x20)>>5;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_4.XMT 		= (second_packet[6] & 0x04)>>2;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_4.XET1 		= (second_packet[6] & 0x02)>>1;
 
 
-		New_MODBUS_Table.byte_table[4] |= (second_packet[6] & 0x1)<<7;
-		New_MODBUS_Table.byte_table[4] |= (third_packet[4])>>1;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_5.XAT 		= (second_packet[6] & 0x01)>>0;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_5.XDVT5 	= (third_packet[4] & 0x80)>>7;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_5.XDVT4 	= (third_packet[4] & 0x40)>>6;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_5.XDVT3 	= (third_packet[4] & 0x20)>>5;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_5.XDVT2 	= (third_packet[4] & 0x10)>>4;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_5.XDVT1 	= (third_packet[4] & 0x08)>>3;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_5.TZ 		= (third_packet[4] & 0x04)>>2;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_5.XVENT 	= (third_packet[4] & 0x02)>>1;
 
-		New_MODBUS_Table.byte_table[5] |= (third_packet[4] & 0x1)<<7;
-		New_MODBUS_Table.byte_table[5] |= (third_packet[5])>>1;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_6.XKT 		= (third_packet[4] & 0x01)>>0;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_6.LED_VD13 	= (third_packet[5] & 0x80)>>7;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_6.LED_VD12 	= (third_packet[5] & 0x40)>>6;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_6.YVENT 	= (third_packet[5] & 0x20)>>5;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_6.XDU 		= (third_packet[5] & 0x10)>>4;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_6.XDI 		= (third_packet[5] & 0x08)>>3;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_6.XDVT 		= (third_packet[5] & 0x04)>>2;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_6.XDVT7 	= (third_packet[5] & 0x02)>>1;
 
-		New_MODBUS_Table.byte_table[6] |= (third_packet[6] & 0x1)<<7;
-		New_MODBUS_Table.byte_table[6] |= (third_packet[7])<<6;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_7.XDVT6 	= (third_packet[5] & 0x01)>>0;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_7.XV0 		= (third_packet[6] & 0x01)>>0;
 
-		New_MODBUS_Table.byte_table[8] = third_packet[0];
-		New_MODBUS_Table.byte_table[9] = third_packet[1];
+		New_MODBUS_Table.bit_table.idtA_struct.U[0] 			=	third_packet[0];
+		New_MODBUS_Table.bit_table.idtA_struct.U[1] 			=	third_packet[1];
+		New_MODBUS_Table.bit_table.idtA_struct.I[0] 			=	third_packet[2];
+		New_MODBUS_Table.bit_table.idtA_struct.I[1] 			=	third_packet[3];
+		New_MODBUS_Table.bit_table.idtA_struct.XTT[0] 			=	fourth_packet[0];
+		New_MODBUS_Table.bit_table.idtA_struct.XTT[1] 			=	fourth_packet[1];
+		New_MODBUS_Table.bit_table.idtA_struct.XTH[0] 			=	fourth_packet[2];
+		New_MODBUS_Table.bit_table.idtA_struct.XTH[1] 			=	fourth_packet[3];
+		New_MODBUS_Table.bit_table.idtA_struct.UY[0] 			=	fourth_packet[4];
+		New_MODBUS_Table.bit_table.idtA_struct.UY[1] 			=	fourth_packet[5];
+		New_MODBUS_Table.bit_table.idtA_struct.CI[0] 			=	fourth_packet[6];
+		New_MODBUS_Table.bit_table.idtA_struct.CI[1] 			=	fourth_packet[7];
 
-		New_MODBUS_Table.byte_table[10] = third_packet[2];
-		New_MODBUS_Table.byte_table[11] = third_packet[3];
-
-		New_MODBUS_Table.byte_table[12] = fourth_packet[0];
-		New_MODBUS_Table.byte_table[13] = fourth_packet[1];
-
-		New_MODBUS_Table.byte_table[14] = fourth_packet[2];
-		New_MODBUS_Table.byte_table[15] = fourth_packet[3];
-
-		New_MODBUS_Table.byte_table[16] = fourth_packet[4];
-		New_MODBUS_Table.byte_table[17] = fourth_packet[5];
-
-		New_MODBUS_Table.byte_table[18] = fourth_packet[6];
-		New_MODBUS_Table.byte_table[19] = fourth_packet[7];
 	}
 	else if(RxHeader.StdId >= 30)
 	{
-		New_MODBUS_Table.byte_table[0+20] = first_packet[0];
-		New_MODBUS_Table.byte_table[1+20] = second_packet[0];
-		uint8_t x7 = (second_packet[4] & 0x7)>>1;
-		uint8_t x7_placed_as_x6 = (second_packet[4] & x7);
-		uint8_t x7_from_another_packet = (second_packet[1] & 0x1)<<7;
-		uint8_t x7_with_x6 = x7_placed_as_x6 + x7_from_another_packet;
-		New_MODBUS_Table.byte_table[2+20] |= x7_with_x6;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_1.TXDI 		= (first_packet[0] & 0x80)>>7;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_1.TXDU 		= (first_packet[0] & 0x40)>>6;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_1.TXDVT 	= (first_packet[0] & 0x20)>>5;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_1.TXDVT1 	= (first_packet[0] & 0x10)>>4;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_1.DVT 		= (first_packet[0] & 0x08)>>3;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_1.DPIT 		= (first_packet[0] & 0x04)>>2;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_1.UMAX2 	= (first_packet[0] & 0x02)>>1;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_1.DI 		= (first_packet[0] & 0x01)>>0;
 
-		New_MODBUS_Table.byte_table[3+20] |= (second_packet[5]) & 0x80;
-		New_MODBUS_Table.byte_table[3+20] |= (second_packet[5]) & 0x40;
-		New_MODBUS_Table.byte_table[3+20] |= ((second_packet[5]) & 0x8)<<2;
-		New_MODBUS_Table.byte_table[3+20] |= ((second_packet[5]) & 0x2)<<3;
-		New_MODBUS_Table.byte_table[3+20] |= ((second_packet[5]) & 0x1)<<3;
-		New_MODBUS_Table.byte_table[3+20] |= ((second_packet[6]) & 0x20)>>3;
-		New_MODBUS_Table.byte_table[3+20] |= ((second_packet[6]) & 0x4)>>1;
-		New_MODBUS_Table.byte_table[3+20] |= ((second_packet[6]) & 0x2)>>1;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_2.YDET 		= (second_packet[0] & 0x80)>>7;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_2.YRT1 		= (second_packet[0] & 0x40)>>6;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_2.MT2 		= (second_packet[0] & 0x20)>>5;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_2.MT1 		= (second_packet[0] & 0x10)>>4;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_2.YK04 		= (second_packet[0] & 0x08)>>3;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_2.YYB 		= (second_packet[0] & 0x04)>>2;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_2.YKL3 		= (second_packet[0] & 0x02)>>1;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_2.YKL1		= (second_packet[0] & 0x01)>>0;
+
+		New_MODBUS_Table.bit_table.idtB_struct.byte_3.YRT2 		= (second_packet[1] & 0x01)>>0;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_3.XSQ5 		= (second_packet[4] & 0x80)>>7;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_3.XZ3 		= (second_packet[4] & 0x20)>>5;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_3.XZ2 		= (second_packet[4] & 0x10)>>4;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_3.XZ1 		= (second_packet[4] & 0x08)>>3;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_3.XH 		= (second_packet[4] & 0x04)>>2;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_3.XZ 		= (second_packet[4] & 0x02)>>1;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_3.XP 		= (second_packet[4] & 0x01)>>0;
+
+		New_MODBUS_Table.bit_table.idtB_struct.byte_4.XKL3 		= (second_packet[5] & 0x80)>>7;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_4.XKL1 		= (second_packet[5] & 0x40)>>6;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_4.XKYB 		= (second_packet[5] & 0x08)>>3;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_4.XK01 		= (second_packet[5] & 0x02)>>1;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_4.XT 		= (second_packet[5] & 0x01)>>0;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_4.XET3 		= (second_packet[6] & 0x20)>>5;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_4.XMT 		= (second_packet[6] & 0x04)>>2;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_4.XET1 		= (second_packet[6] & 0x02)>>1;
 
 
-		New_MODBUS_Table.byte_table[4+20] |= (second_packet[6] & 0x1)<<7;
-		New_MODBUS_Table.byte_table[4+20] |= (third_packet[4])>>1;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_5.XAT 		= (second_packet[6] & 0x01)>>0;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_5.XDVT5 	= (third_packet[4] & 0x80)>>7;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_5.XDVT4 	= (third_packet[4] & 0x40)>>6;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_5.XDVT3 	= (third_packet[4] & 0x20)>>5;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_5.XDVT2 	= (third_packet[4] & 0x10)>>4;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_5.XDVT1 	= (third_packet[4] & 0x08)>>3;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_5.TZ 		= (third_packet[4] & 0x04)>>2;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_5.XVENT 	= (third_packet[4] & 0x02)>>1;
 
-		New_MODBUS_Table.byte_table[5+20] |= (third_packet[4] & 0x1)<<7;
-		New_MODBUS_Table.byte_table[5+20] |= (third_packet[5])>>1;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_6.XKT 		= (third_packet[4] & 0x01)>>0;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_6.LED_VD13 	= (third_packet[5] & 0x80)>>7;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_6.LED_VD12 	= (third_packet[5] & 0x40)>>6;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_6.YVENT 	= (third_packet[5] & 0x20)>>5;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_6.XDU 		= (third_packet[5] & 0x10)>>4;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_6.XDI 		= (third_packet[5] & 0x08)>>3;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_6.XDVT 		= (third_packet[5] & 0x04)>>2;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_6.XDVT7 	= (third_packet[5] & 0x02)>>1;
 
-		New_MODBUS_Table.byte_table[6+20] |= (third_packet[6] & 0x1)<<7;
-		New_MODBUS_Table.byte_table[6+20] |= (third_packet[7])<<6;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_7.XDVT6 	= (third_packet[5] & 0x01)>>0;
+		New_MODBUS_Table.bit_table.idtB_struct.byte_7.XV0 		= (third_packet[6] & 0x01)>>0;
 
-		New_MODBUS_Table.byte_table[8+20] = third_packet[0];
-		New_MODBUS_Table.byte_table[9+20] = third_packet[1];
-
-		New_MODBUS_Table.byte_table[10+20] = third_packet[2];
-		New_MODBUS_Table.byte_table[11+20] = third_packet[3];
-
-		New_MODBUS_Table.byte_table[12+20] = fourth_packet[0];
-		New_MODBUS_Table.byte_table[13+20] = fourth_packet[1];
-
-		New_MODBUS_Table.byte_table[14+20] = fourth_packet[2];
-		New_MODBUS_Table.byte_table[15+20] = fourth_packet[3];
-
-		New_MODBUS_Table.byte_table[16+20] = fourth_packet[4];
-		New_MODBUS_Table.byte_table[17+20] = fourth_packet[5];
-
-		New_MODBUS_Table.byte_table[18+20] = fourth_packet[6];
-		New_MODBUS_Table.byte_table[19+20] = fourth_packet[7];
+		New_MODBUS_Table.bit_table.idtB_struct.U[0] 			=	third_packet[0];
+		New_MODBUS_Table.bit_table.idtB_struct.U[1] 			=	third_packet[1];
+		New_MODBUS_Table.bit_table.idtB_struct.I[0] 			=	third_packet[2];
+		New_MODBUS_Table.bit_table.idtB_struct.I[1] 			=	third_packet[3];
+		New_MODBUS_Table.bit_table.idtB_struct.XTT[0] 			=	fourth_packet[0];
+		New_MODBUS_Table.bit_table.idtB_struct.XTT[1] 			=	fourth_packet[1];
+		New_MODBUS_Table.bit_table.idtB_struct.XTH[0] 			=	fourth_packet[2];
+		New_MODBUS_Table.bit_table.idtB_struct.XTH[1] 			=	fourth_packet[3];
+		New_MODBUS_Table.bit_table.idtB_struct.UY[0] 			=	fourth_packet[4];
+		New_MODBUS_Table.bit_table.idtB_struct.UY[1] 			=	fourth_packet[5];
+		New_MODBUS_Table.bit_table.idtB_struct.CI[0] 			=	fourth_packet[6];
+		New_MODBUS_Table.bit_table.idtB_struct.CI[1] 			=	fourth_packet[7];
 	}
 
 }

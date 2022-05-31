@@ -157,7 +157,7 @@ typedef struct new_idt
 	struct
 	{
 		uint8_t YRT2:1;
-		uint8_t XQS5:1;
+		uint8_t XSQ5:1;
 		uint8_t XZ3:1;
 		uint8_t XZ2:1;
 		uint8_t XZ1:1;
