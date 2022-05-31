@@ -23,9 +23,6 @@ enum IOBoardCommands
 	ASK_FOR_PERIOD_XA
 }IOBoardCommands_t;
 
-
-
-
 extern CAN_TxHeaderTypeDef TxHeader;
 extern CAN_RxHeaderTypeDef RxHeader;
 extern uint8_t TxData[2];
@@ -49,6 +46,24 @@ extern IOBoard_t io3;
 extern IOBoard_t io4;
 
 uint32_t receiveFromIO2(IOBoard_t * IOBoard);
+
+void askIO(CAN_HandleTypeDef * hcan, IOboard_request_t * req);
+uint32_t receiveFromIO(CAN_HandleTypeDef * hcan, uint8_t * receivedData, uint32_t boardID);
+void placeIntoTableIO(uint8_t * receivedData, IOboard_request_t * req);
+void IOboard_request(CAN_HandleTypeDef * hcan, uint32_t boardNumber, uint32_t cmd, IOboard_request_t * req);
+
+void ask_for_readiness(IOBoard_t * IOBoard);
+void ask_for_specific_DIN(IOBoard_t * IOBoard, uint8_t DIN);
+void ask_for_specific_ADC(IOBoard_t * IOBoard, uint8_t ADCx);
+void turn_on_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT);
+void turn_off_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT);
+void ask_for_specific_IS(IOBoard_t * IOBoard, uint8_t ISx);
+void ask_DINs(IOBoard_t * IOBoard);
+void ask_for_XA(IOBoard_t * IOBoard);
+void set_address_of_IO(IOBoard_t * IOBoard, uint8_t NewAddr);
+uint32_t get_response(IOBoard_t * IOBoard);
+uint32_t RequestIO(IOBoard_t * IOBoard);
+void place_into_table(IOBoard_t * IOBoard);
 
 
 void IOboard1Init(void)
@@ -85,7 +100,6 @@ void IOboard3Init(void)
 	io3.nextCommand = 0;
 
 }
-
 
 
 void askIO(CAN_HandleTypeDef * hcan, IOboard_request_t * req)
@@ -442,7 +456,7 @@ void set_address_of_IO(IOBoard_t * IOBoard, uint8_t NewAddr)	/*** 9 ***/
 	HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
 }
 
-static uint32_t ask_ADCs(IOBoard_t * IOBoard)
+uint32_t ask_ADCs(IOBoard_t * IOBoard)
 {
 	static uint8_t ADCx = 0;
 	uint32_t go_next = 0;
@@ -455,7 +469,7 @@ static uint32_t ask_ADCs(IOBoard_t * IOBoard)
 	}
 	return go_next;
 }
-static uint32_t ask_ISs(IOBoard_t * IOBoard)
+uint32_t ask_ISs(IOBoard_t * IOBoard)
 {
 	static uint8_t ISx = 1;
 	uint32_t go_next = 0;
@@ -468,7 +482,6 @@ static uint32_t ask_ISs(IOBoard_t * IOBoard)
 	}
 	return go_next;
 }
-
 
 uint32_t RequestIO(IOBoard_t * IOBoard)
 {
@@ -522,7 +535,7 @@ uint32_t RequestIO(IOBoard_t * IOBoard)
 	return go_to_the_next_board;
 }
 
-static void place_DINs(IOBoard_t * IOBoard)
+void place_DINs(IOBoard_t * IOBoard)
 {
 	uint32_t board = IOBoard->RxBuffer[1];
 	enum
@@ -606,11 +619,11 @@ static void place_DINs(IOBoard_t * IOBoard)
 			break;
 	}
 }
-static void place_ISs(IOBoard_t * IOBoard)
+void place_ISs(IOBoard_t * IOBoard)
 {
 	return;
 }
-static void place_ADCs(IOBoard_t * IOBoard)
+void place_ADCs(IOBoard_t * IOBoard)
 {
 	uint32_t ADC_ch = IOBoard->RxBuffer[3];
 	uint32_t board 	= IOBoard->RxBuffer[1];
@@ -700,7 +713,7 @@ static void place_ADCs(IOBoard_t * IOBoard)
 	}
 
 }
-static void place_XAs(IOBoard_t * IOBoard)
+void place_XAs(IOBoard_t * IOBoard)
 {
 	uint32_t XAx = IOBoard->RxBuffer[3];
 	uint32_t board 	= IOBoard->RxBuffer[1];

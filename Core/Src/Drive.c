@@ -28,7 +28,7 @@ extern uint32_t processInIO;
 
 extern uint32_t allow_placement;
 
-uint32_t askPacket(CAN_HandleTypeDef * hcan, uint8_t packet_to_ask)
+static uint32_t request(CAN_HandleTypeDef * hcan, uint8_t packet_to_ask)
 {
 	CAN_TxHeaderTypeDef TxHeader;
 	// Form a request
@@ -41,7 +41,7 @@ uint32_t askPacket(CAN_HandleTypeDef * hcan, uint8_t packet_to_ask)
 
 	uint8_t dummy[8] = {0};
 	// Send a request drive board for a packet
-	HAL_CAN_AddTxMessage(hcan, &TxHeader, dummy, (uint32_t*)CAN_TX_MAILBOX1);
+	HAL_CAN_AddTxMessage(hcan, &TxHeader, dummy, (uint32_t*)CAN_TX_MAILBOX0);
 
 	return HAL_OK;
 }
@@ -49,66 +49,75 @@ uint32_t askPacket(CAN_HandleTypeDef * hcan, uint8_t packet_to_ask)
 /*** Notice:
  *			receivePacket function was replaced by interrupt handling (HAL_CAN_RxFifo0MsgPendingCallback in main)
  */
-void get_packet(CAN_HandleTypeDef * hcan)
+static void receive(CAN_HandleTypeDef * hcan)
 {
-	uint32_t id = (hcan->Instance->sFIFOMailBox[0].RIR)>>21;
+	uint32_t id = (hcan->Instance->sFIFOMailBox[1].RIR)>>21;
 	switch(id)
 	{
 		case 20:
-			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
+			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &RxHeader, RxData_fifo);
 			for(int i = 0; i < 8; i++)
 			{
 				first_packet[i] = RxData_fifo[i];
 			}
 			break;
 		case 21:
-			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
+			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &RxHeader, RxData_fifo);
 			for(int i = 0; i < 8; i++)
 			{
 				second_packet[i] = RxData_fifo[i];
 			}
 			break;
 		case 22:
-			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
+			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &RxHeader, RxData_fifo);
 			for(int i = 0; i < 8; i++)
 			{
 				third_packet[i] = RxData_fifo[i];
 			}
 			break;
 		case 23:
-			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
+			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &RxHeader, RxData_fifo);
 			for(int i = 0; i < 8; i++)
 			{
 				fourth_packet[i] = RxData_fifo[i];
 			}
 			break;
 		default:
-			hcan->Instance->RF0R &= ~(1U<<4);
+			hcan->Instance->RF1R &= ~(1U<<4);
 			break;
 	}
 }
 
-void placeIntoTable(void)
+static void place(void)
 {
 	if((RxHeader.StdId >= 20) && (RxHeader.StdId < 30))
 	{
-		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDI 		= 1;//= (first_packet[0] & 0x80)>>7;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDU 		= 1;//= (first_packet[0] & 0x40)>>6;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDVT 	= 1;//= (first_packet[0] & 0x20)>>5;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDVT1 	= 1;//= (first_packet[0] & 0x10)>>4;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DVT 		= 1;//= (first_packet[0] & 0x08)>>3;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DPIT 		= 1;//= (first_packet[0] & 0x04)>>2;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_1.UMAX2 	= 1;//= (first_packet[0] & 0x02)>>1;
-		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DI 		= 1;//= (first_packet[0] & 0x01)>>0;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDI 		= (first_packet[0] & 0x80)>>7;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDU 		= (first_packet[0] & 0x40)>>6;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDVT 	= (first_packet[0] & 0x20)>>5;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDVT1 	= (first_packet[0] & 0x10)>>4;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DVT 		= (first_packet[0] & 0x08)>>3;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DPIT 		= (first_packet[0] & 0x04)>>2;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.UMAX2 	= (first_packet[0] & 0x02)>>1;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DI 		= (first_packet[0] & 0x01)>>0;
 
-//		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDI 		= (first_packet[0] & 0x80)>>7;
-//		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDU 		= (first_packet[0] & 0x40)>>6;
-//		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDVT 	= (first_packet[0] & 0x20)>>5;
-//		New_MODBUS_Table.bit_table.idtA_struct.byte_1.TXDVT1 	= (first_packet[0] & 0x10)>>4;
-//		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DVT 		= (first_packet[0] & 0x08)>>3;
-//		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DPIT 		= (first_packet[0] & 0x04)>>2;
-//		New_MODBUS_Table.bit_table.idtA_struct.byte_1.UMAX2 	= (first_packet[0] & 0x02)>>1;
-//		New_MODBUS_Table.bit_table.idtA_struct.byte_1.DI 		= (first_packet[0] & 0x01)>>0;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_2.TXDI 		= (first_packet[0] & 0x80)>>7;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_2.TXDU 		= (first_packet[0] & 0x40)>>6;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_2.TXDVT 	= (first_packet[0] & 0x20)>>5;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_2.TXDVT1 	= (first_packet[0] & 0x10)>>4;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_2.DVT 		= (first_packet[0] & 0x08)>>3;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_2.DPIT 		= (first_packet[0] & 0x04)>>2;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_2.UMAX2 	= (first_packet[0] & 0x02)>>1;
+		New_MODBUS_Table.bit_table.idtA_struct.byte_2.DI 		= (first_packet[0] & 0x01)>>0;
+
+//		New_MODBUS_Table.bit_table.idtA_struct.byte_3.TXDI 		= (first_packet[0] & 0x80)>>7;
+//		New_MODBUS_Table.bit_table.idtA_struct.byte_3.TXDU 		= (first_packet[0] & 0x40)>>6;
+//		New_MODBUS_Table.bit_table.idtA_struct.byte_3.TXDVT 	= (first_packet[0] & 0x20)>>5;
+//		New_MODBUS_Table.bit_table.idtA_struct.byte_3.TXDVT1 	= (first_packet[0] & 0x10)>>4;
+//		New_MODBUS_Table.bit_table.idtA_struct.byte_3.DVT 		= (first_packet[0] & 0x08)>>3;
+//		New_MODBUS_Table.bit_table.idtA_struct.byte_3.DPIT 		= (first_packet[0] & 0x04)>>2;
+//		New_MODBUS_Table.bit_table.idtA_struct.byte_3.UMAX2 	= (first_packet[0] & 0x02)>>1;
+//		New_MODBUS_Table.bit_table.idtA_struct.byte_3.DI 		= (first_packet[0] & 0x01)>>0;
 		New_MODBUS_Table.byte_table[1] = second_packet[0];
 		uint8_t x7 = (second_packet[4] & 0x7)>>1;
 		uint8_t x7_placed_as_x6 = (second_packet[4] & x7);
@@ -223,19 +232,19 @@ uint32_t CDR(void)
 	switch(current_process)
 	{
 		case REQUEST:
-			askPacket(&hcan2, packet_to_ask);
+			request(&hcan2, packet_to_ask);
 			current_process = GET_RESPONSE;
 			go_to_the_next_block = NO;
 			break;
 		case GET_RESPONSE:
-			get_packet(&hcan2);
+			receive(&hcan2);
 			current_process = PLACE_INTO_TABLE;
 
 			break;
 		case PLACE_INTO_TABLE:
 			if(packet_to_ask >= 23)
 			{
-				placeIntoTable();
+				place();
 				go_to_the_next_block = YES;
 				packet_to_ask = 20;
 			}
