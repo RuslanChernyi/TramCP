@@ -121,6 +121,7 @@ uint8_t outputNr = 1;
 uint32_t outputToggleDelay_counter = 0;
 uint32_t direction = 0;
 uint8_t spi_receive_blahbuffer[4];
+uint8_t * p_spi_rxBuffer;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -185,7 +186,8 @@ int main(void)
   TxHeader.TransmitGlobalTime = DISABLE;
 //  SPI1->CR1 |= (1U<<6);
   SPI2->CR1 |= (1U<<6);
- // SPI2->CR2 |= (1U<<6);
+  SPI2->CR2 |= (1U<<6);
+  p_spi_rxBuffer = spi_receive_blahbuffer;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -239,7 +241,8 @@ int main(void)
 	  SPI_Transmit(spi_transmit_buffer, 1, SPI2);
 	  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 1);
 
-	  spi_transmit_buffer[0] = (uint8_t) ((cINSTRUCTION_READ << 4) + ((address >> 8) & 0xF));
+	  //spi_transmit_buffer[0] = (uint8_t) ((cINSTRUCTION_READ << 4) + ((address >> 8) & 0xF));
+	  spi_transmit_buffer[0] = (uint8_t) ((cINSTRUCTION_READ) + ((address >> 8) & 0xF)<<4);
 	  spi_transmit_buffer[1] = (uint8_t) (address & 0xFF);
 	  spi_transmit_buffer[2] = 0;
 	  spi_transmit_buffer[3] = 0;
@@ -346,6 +349,21 @@ void HAL_USART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	return;
 }
+
+void HAL_SPI_RxCpltCallback (SPI_HandleTypeDef * hspi)
+{
+	static index = 0;
+	*(p_spi_rxBuffer + index) = SPI2->DR;
+	if(index > 3)
+	{
+		index = 0;
+	}
+	else
+	{
+		index++;
+	}
+}
+
 void SPI_Transmit (uint8_t *data, int size, SPI_TypeDef * SPIx)
 {
 
@@ -374,8 +392,8 @@ data.
 	while (((SPIx->SR)&(1<<7))) {};  // wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
 
 	//  Clear the Overrun flag by reading DR and SR
-	uint8_t temp = SPIx->DR;
-	temp = SPIx->SR;
+//	uint8_t temp = SPIx->DR;
+//	temp = SPIx->SR;
 
 }
 
@@ -390,12 +408,14 @@ void SPI_Receive (uint8_t *data, int size, SPI_TypeDef * SPIx)
 
 	while (size)
 	{
-		while (((SPIx->SR)&(1<<7))) {};  // wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
+		while (((SPIx->SR) & (1<<7))) {};  // wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
 		SPIx->DR = 0;  // send dummy data
-		while (!((SPIx->SR) &(1<<0))){};  // Wait for RXNE to set -> This will indicate that the Rx buffer is not empty
+		while (!((SPIx->SR) & (1<<0))){};  // Wait for RXNE to set -> This will indicate that the Rx buffer is not empty
 	  *data++ = (SPIx->DR);
 		size--;
 	}
+	//  Clear the Overrun flag by reading DR and SR
+	uint32_t temp = SPIx->SR;
 }
 /* USER CODE END 4 */
 
