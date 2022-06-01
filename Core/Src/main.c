@@ -230,12 +230,27 @@ int main(void)
 	  uint16_t address = 0;
 //	  spi_transmit_buffer[0] = (uint8_t) ((cINSTRUCTION_READ << 4) + ((address >> 8) & 0xF));
 //	  spi_transmit_buffer[1] = (uint8_t) (address & 0xFF);
+	  spi_transmit_buffer[0] = 0;
+//	  spi_transmit_buffer[1] = 0;
+//	  spi_transmit_buffer[2] = 0;
+//	  spi_transmit_buffer[3] = 0;
+
+	  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 0);
+	  SPI_Transmit(spi_transmit_buffer, 1, SPI2);
+	  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 1);
+
+	  spi_transmit_buffer[0] = (uint8_t) ((cINSTRUCTION_READ << 4) + ((address >> 8) & 0xF));
+	  spi_transmit_buffer[1] = (uint8_t) (address & 0xFF);
+	  spi_transmit_buffer[2] = 0;
+	  spi_transmit_buffer[3] = 0;
 
 	  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 0);
 	  SPI_Transmit(spi_transmit_buffer, 2, SPI2);
+	  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 1);
+
 	  if(hspi2.Instance->SR & (1U<<0))	// If receive buffer not empty
 	  {
-		  SPI_Receive(spi_receive_blahbuffer, 1, SPI2);
+		  SPI_Receive(spi_receive_blahbuffer, 4, SPI2);
 	  }
 	  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 1);
 
