@@ -99,6 +99,7 @@ extern uint8_t stop_spi_tx;
 extern uint8_t outputNr;
 extern uint32_t direction;
 extern uint8_t spi_receive_blahbuffer[4];
+extern uint8_t * p_spi_rxBuffer;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -245,7 +246,18 @@ void SysTick_Handler(void)
 void SPI2_IRQHandler(void)
 {
   /* USER CODE BEGIN SPI2_IRQn 0 */
-
+	static uint32_t index = 0;
+	*(p_spi_rxBuffer + index) = SPI2->DR;
+	if(index > 3)
+	{
+		index = 0;
+		HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 1);
+	}
+	else
+	{
+		index++;
+	}
+	uint8_t temp = SPI2->SR;
   /* USER CODE END SPI2_IRQn 0 */
   HAL_SPI_IRQHandler(&hspi2);
   /* USER CODE BEGIN SPI2_IRQn 1 */
