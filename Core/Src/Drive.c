@@ -150,18 +150,18 @@ static void place(void)
 		New_MODBUS_Table.bit_table.idtA_struct.byte_7.XDVT6 	= (third_packet[5] & 0x01)>>0;
 		New_MODBUS_Table.bit_table.idtA_struct.byte_7.XV0 		= (third_packet[6] & 0x01)>>0;
 
-		New_MODBUS_Table.bit_table.idtA_struct.U[0] 			=	third_packet[0];
-		New_MODBUS_Table.bit_table.idtA_struct.U[1] 			=	third_packet[1];
-		New_MODBUS_Table.bit_table.idtA_struct.I[0] 			=	third_packet[2];
-		New_MODBUS_Table.bit_table.idtA_struct.I[1] 			=	third_packet[3];
-		New_MODBUS_Table.bit_table.idtA_struct.XTT[0] 			=	0x3;//fourth_packet[0];
-		New_MODBUS_Table.bit_table.idtA_struct.XTT[1] 			=	0x1;//fourth_packet[1];
-		New_MODBUS_Table.bit_table.idtA_struct.XTH[0] 			=	0xFE;//fourth_packet[2];
-		New_MODBUS_Table.bit_table.idtA_struct.XTH[1] 			=	0xFE;//fourth_packet[3];
-		New_MODBUS_Table.bit_table.idtA_struct.UY[0] 			=	fourth_packet[4];
-		New_MODBUS_Table.bit_table.idtA_struct.UY[1] 			=	fourth_packet[5];
-		New_MODBUS_Table.bit_table.idtA_struct.CI[0] 			=	fourth_packet[6];
-		New_MODBUS_Table.bit_table.idtA_struct.CI[1] 			=	fourth_packet[7];
+		New_MODBUS_Table.bit_table.idtA_struct.U[0] 			=	0xFE;third_packet[0];
+		New_MODBUS_Table.bit_table.idtA_struct.U[1] 			=	0xFF;third_packet[1];
+		New_MODBUS_Table.bit_table.idtA_struct.I[0] 			=	0x2C;third_packet[2];
+		New_MODBUS_Table.bit_table.idtA_struct.I[1] 			=	0x01;third_packet[3];
+		New_MODBUS_Table.bit_table.idtA_struct.XTT[0] 			=	fourth_packet[0];
+		New_MODBUS_Table.bit_table.idtA_struct.XTT[1] 			=	fourth_packet[1];
+		New_MODBUS_Table.bit_table.idtA_struct.XTH[0] 			=	fourth_packet[2];
+		New_MODBUS_Table.bit_table.idtA_struct.XTH[1] 			=	fourth_packet[3];
+		New_MODBUS_Table.bit_table.idtA_struct.UY[0] 			=	0xFE;fourth_packet[4];
+		New_MODBUS_Table.bit_table.idtA_struct.UY[1] 			=	0xFF;fourth_packet[5];
+		New_MODBUS_Table.bit_table.idtA_struct.CI[0] 			=	0xFE;fourth_packet[6];
+		New_MODBUS_Table.bit_table.idtA_struct.CI[1] 			=	0xFF;fourth_packet[7];
 
 	}
 	else if(RxHeader.StdId >= 30)

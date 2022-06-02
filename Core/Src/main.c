@@ -32,6 +32,7 @@
 #include "drv_spi.h"
 #include "IO_Board.h"
 #include "modbus_ascii.h"
+#include "canfd_stm.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -120,7 +121,7 @@ uint8_t stop_spi_tx;
 uint8_t outputNr = 1;
 uint32_t outputToggleDelay_counter = 0;
 uint32_t direction = 0;
-uint8_t spi_receive_blahbuffer[5];
+uint8_t spi_receive_blahbuffer[4];
 uint8_t * p_spi_rxBuffer;
 uint16_t address = 0;
 /* USER CODE END PV */
@@ -188,11 +189,24 @@ int main(void)
 //  SPI1->CR1 |= (1U<<6);
   SPI2->CR1 |= (1U<<6);
   SPI2->CR2 |= (1U<<6);
+  REG_OSC osc_reg = {0};
+  uint8_t big_buffer[752] = {0};
+  spican_readBytes(cREGADDR_CiCON, big_buffer, sizeof(big_buffer));
+  //  spican_read32bitReg(cREGADDR_CiCON, osc_reg.byte);
+//  uint8_t cicon_reg = spican_readByte(cREGADDR_CiCON);
+//  uint8_t operation = 0x00;
+//  spican_writeByte(cREGADDR_CiCON+3, operation);
+//  spican_read32bitReg(cREGADDR_CiCON, osc_reg.byte);
+//  cicon_reg = spican_readByte(cREGADDR_CiCON);
+  spican_readBytes(cREGADDR_CiCON, big_buffer, sizeof(big_buffer));
+
   p_spi_rxBuffer = spi_receive_blahbuffer;
-  uint8_t spi_transmit_buffer[4] = {0};
-  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 0);
-  SPI_Transmit(spi_transmit_buffer, 1, SPI2);
-  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 1);
+//  uint8_t spi_transmit_buffer[4] = {0};
+//  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 0);
+//  SPI_Transmit(spi_transmit_buffer, 2, SPI2);
+//  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 1);
+
+//  Configure_CAN();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -219,33 +233,24 @@ int main(void)
 	  {
 		  __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
 	  }
-	  static uint32_t initi = 0;
-	  if(initi == 0)
-	  {
-		  spi_receive_blahbuffer[0] = 0;
-		  spi_receive_blahbuffer[1] = 1;
-		  spi_receive_blahbuffer[2] = 2;
-		  spi_receive_blahbuffer[3] = 3;
-	  }
-	  initi = 1;
 
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  //spi_transmit_buffer[0] = (uint8_t) ((cINSTRUCTION_READ << 4) + ((address >> 8) & 0xF));
-	  //spi_transmit_buffer[0] = (uint8_t) ((cINSTRUCTION_READ) + ((address >> 8) & 0xF)<<4);
 	  static uint32_t counter_rx = 0;
-	  uint8_t buffer[7] = {0};
-	  uint16_t writeCommand = (/*cREGADDR_OSC*/ cREGADDR_IOCON & 0x0FFF) | (0x3 << 12);
-	  buffer[0] = writeCommand >> 8;
-	  buffer[1] = writeCommand & 0xFF;
+
 
 	  if(counter_rx == 10000)
 	  {
-		  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 0);
-		  SPI_Transmit(buffer, 7, SPI2);
-		  SPI_Receive(spi_receive_blahbuffer, 5, SPI2);
-		  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 1);
+//		  uint8_t buffer[6] = {0};
+//		  uint16_t writeCommand = (/*cREGADDR_OSC*/ /*cREGADDR_IOCON*/ cREGADDR_CiCON & 0x0FFF) | (0x3 << 12);
+//		  buffer[0] = writeCommand >> 8;
+//		  buffer[1] = writeCommand & 0xFF;
+//
+//		  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 0);
+//		  SPI_Transmit(buffer, 6, SPI2);
+//		  SPI_Receive(spi_receive_blahbuffer, 4, SPI2);
+//		  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 1);
 		  counter_rx = 0;
 	  }
 	  else
@@ -385,8 +390,8 @@ data.
 	while (((SPIx->SR)&(1<<7))) {};  // wait for BSY bit to Reset -> This will indicate that SPI is not busy in communication
 
 	//  Clear the Overrun flag by reading DR and SR
-//	uint8_t temp = SPIx->DR;
-//	temp = SPIx->SR;
+	uint8_t temp = SPIx->DR;
+	temp = SPIx->SR;
 
 }
 

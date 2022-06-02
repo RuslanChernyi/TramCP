@@ -248,7 +248,7 @@ void SPI2_IRQHandler(void)
   /* USER CODE BEGIN SPI2_IRQn 0 */
 	static uint32_t index = 0;
 	*(p_spi_rxBuffer + index) = SPI2->DR;
-	if(index > 3)
+	if(index > 20)
 	{
 		index = 0;
 		HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 1);
