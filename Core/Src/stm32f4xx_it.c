@@ -64,7 +64,6 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern SPI_HandleTypeDef hspi2;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim7;
 extern UART_HandleTypeDef huart1;
@@ -241,31 +240,6 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
-  * @brief This function handles SPI2 global interrupt.
-  */
-void SPI2_IRQHandler(void)
-{
-  /* USER CODE BEGIN SPI2_IRQn 0 */
-	static uint32_t index = 0;
-	*(p_spi_rxBuffer + index) = SPI2->DR;
-	if(index > 20)
-	{
-		index = 0;
-		HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 1);
-	}
-	else
-	{
-		index++;
-	}
-	uint8_t temp = SPI2->SR;
-  /* USER CODE END SPI2_IRQn 0 */
-  HAL_SPI_IRQHandler(&hspi2);
-  /* USER CODE BEGIN SPI2_IRQn 1 */
-
-  /* USER CODE END SPI2_IRQn 1 */
-}
-
-/**
   * @brief This function handles USART1 global interrupt.
   */
 void USART1_IRQHandler(void)
@@ -352,33 +326,8 @@ void TIM7_IRQHandler(void)
 			go_to_the_next_block = CDR();
 			if(go_to_the_next_block == YES)
 			{
-				current_block = 5;
+				current_block = 1;
 			}
-			break;
-		case 5:
-			if(direction == 0)
-			{
-				turn_on_specific_DOUT(&io1, outputNr);
-				turn_on_specific_DOUT(&io2, outputNr);
-
-			}
-			else if(direction == 1)
-			{
-				turn_off_specific_DOUT(&io1, outputNr);
-				turn_off_specific_DOUT(&io2, outputNr);
-
-			}if(outputNr > 10)
-			{
-				HAL_GPIO_TogglePin(XZ2_HL5_GPIO_Port, XZ2_HL5_Pin);
-				HAL_GPIO_TogglePin(XZ1_HL4_GPIO_Port, XZ1_HL4_Pin);
-				outputNr = 0;
-				direction = (!direction & 0x1);
-			}
-			else
-			{
-				outputNr++;
-			}
-			current_block = 1;
 			break;
 	}
   /* USER CODE END TIM7_IRQn 0 */

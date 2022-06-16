@@ -234,6 +234,12 @@ typedef union _REG_CiTDC {
     uint8_t byte[4];
 } REG_CiTDC;
 
+typedef union _REG_TBC
+{
+	uint32_t word;
+	uint8_t byte[4];
+}REG_CiTBC;
+
 // *****************************************************************************
 //! Time Stamp Configuration Register
 
@@ -342,6 +348,36 @@ typedef union _REG_CiINTENABLE {
     uint8_t byte[2];
 } REG_CiINTENABLE;
 
+typedef union _REG_CiRXIF
+{
+	uint32_t word;
+	uint8_t byte[4];
+}REG_CiRXIF;
+
+typedef union _REG_CiTXIF
+{
+	uint32_t word;
+	uint8_t byte[4];
+}REG_CiTXIF;
+
+typedef union _REG_CiRXOVIF
+{
+	uint32_t word;
+	uint8_t byte[4];
+}REG_CiRXOVIF;
+
+typedef union _REG_CiTXATIF
+{
+	uint32_t word;
+	uint8_t byte[4];
+}REG_CiTXATIF;
+
+typedef union _REG_CiTXREQ
+{
+	uint32_t word;
+	uint8_t byte[4];
+}REG_CiTXREQ;
+
 // *****************************************************************************
 //! Transmit/Receive Error Count Register
 
@@ -446,6 +482,12 @@ typedef union _REG_CiTEFSTA {
     uint8_t byte[4];
 } REG_CiTEFSTA;
 
+typedef union _REG_CiTEFUA
+{
+	uint32_t word;
+	uint8_t byte[4];
+}REG_CiTEFUA;
+
 // *****************************************************************************
 //! Transmit Queue Control Register
 
@@ -493,6 +535,12 @@ typedef union _REG_CiTXQSTA {
     uint32_t word;
     uint8_t byte[4];
 } REG_CiTXQSTA;
+
+typedef union _REG_CiTXQUA
+{
+	uint32_t word;
+	uint8_t byte[4];
+}REG_CiTXQUA;
 
 // *****************************************************************************
 //! FIFO Control Register
@@ -595,12 +643,37 @@ typedef union _REG_CiFIFOUA {
 typedef union _REG_CiFLTCON_BYTE {
 
     struct {
-        uint32_t BufferPointer : 5;
-        uint32_t unimplemented1 : 2;
-        uint32_t Enable : 1;
+        uint8_t BufferPointer : 5;
+        uint8_t unimplemented1 : 2;
+        uint8_t Enable : 1;
     } bF;
     uint8_t byte;
 } REG_CiFLTCON_BYTE;
+
+//typedef struct REG32_CiFLTCON_t
+//{
+//
+//}REG32_CiFLTCON;
+typedef union REG_CiFLTCON_t
+{
+	struct
+	{
+		uint8_t F0BP : 5;
+		uint8_t unimplemented1 : 2;
+		uint8_t FLTEN0 : 1;
+		uint8_t F1BP : 5;
+		uint8_t unimplemented2 : 2;
+		uint8_t FLTEN1 : 1;
+		uint8_t F2BP : 5;
+		uint8_t unimplemented3 : 2;
+		uint8_t FLTEN2 : 1;
+		uint8_t F3BP : 5;
+		uint8_t unimplemented4 : 2;
+		uint8_t FLTEN3 : 1;
+	}bF;
+	uint32_t word;
+	uint8_t byte[4];
+}REG_CiFLTCON;
 
 // *****************************************************************************
 //! Filter Object Register

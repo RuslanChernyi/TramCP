@@ -33,6 +33,8 @@
 #include "IO_Board.h"
 #include "modbus_ascii.h"
 #include "canfd_stm.h"
+#include "canfd_stm_config.h"
+#include "DMA.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -115,16 +117,22 @@ uint32_t modbus_message_received;
 uint32_t current_block;
 uint32_t allow_placement;
 
-uint8_t spi1_rx_buf[20];
-uint32_t spi_counter;
-uint8_t stop_spi_tx;
-uint8_t outputNr = 1;
-uint32_t outputToggleDelay_counter = 0;
-uint32_t direction = 0;
-uint8_t spi_receive_blahbuffer[4];
-uint8_t * p_spi_rxBuffer;
-uint16_t address = 0;
+
 uint8_t my_buffer[4] = {0};
+
+spiCAN spican1;
+spiCAN spican2;
+spiCAN spican3;
+spiCAN spican4;
+
+UsedFIFOs canfd1_fifos = {0};
+
+mcp_status canfd1_status = {0};
+mcp_status canfd2_status = {0};
+mcp_status canfd3_status = {0};
+mcp_status canfd4_status = {0};
+
+CAN_RX_MSGOBJ received_msg = {0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -167,48 +175,52 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_CAN1_Init();
+  MX_CAN2_Init();
   MX_SPI1_Init();
   MX_SPI2_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_TIM6_Init();
   MX_TIM7_Init();
-  MX_CAN2_Init();
   /* USER CODE BEGIN 2 */
   USART1->CR1 |= (1U<<5);	// Enable Receive interrupt
+  SPI1->CR1 |= (1U<<6);	// Enable SPI1
+  SPI2->CR1 |= (1U<<6);	// Enable SPI2
   IOboard1Init();
   IOboard2Init();
   IOboard3Init();
+
   HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_Base_Start_IT(&htim7);
-  TxHeader.StdId = 0x01;
-  TxHeader.ExtId = 0x00;
-  TxHeader.RTR = CAN_RTR_DATA;
-  TxHeader.IDE = CAN_ID_STD;
-  TxHeader.DLC = 8;
-  TxHeader.TransmitGlobalTime = DISABLE;
-//  SPI1->CR1 |= (1U<<6);
-  SPI2->CR1 |= (1U<<6);
-  SPI2->CR2 |= (1U<<6);
-  //  spican_read32bitReg(cREGADDR_CiCON, osc_reg.byte);
-//  uint8_t cicon_reg = spican_readByte(cREGADDR_CiCON);
-//  uint8_t operation = 0x00;
-//  spican_writeByte(cREGADDR_CiCON+3, operation);
-//  spican_read32bitReg(cREGADDR_CiCON, osc_reg.byte);
-//  cicon_reg = spican_readByte(cREGADDR_CiCON);
-//  spican_readBytes(cREGADDR_CiCON, my_buffer, sizeof(my_buffer));
 
-//  p_spi_rxBuffer = spi_receive_blahbuffer;
-//  uint8_t spi_transmit_buffer[4] = {0};
-//  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 0);
-//  SPI_Transmit(spi_transmit_buffer, 2, SPI2);
-//  HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 1);
 
-//  Configure_CAN();
+  spiCAN1_Init();
+  spiCAN2_Init();
+  spiCAN3_Init();
+  spiCAN4_Init();
+
+  DMA_SPI1RXInit();
+  DMA_SPI2RXInit();
+
+  canfd_configure(&spican1);
+  canfd_configure(&spican2);
+  canfd_configure(&spican3);
+  canfd_configure(&spican4);
+
+  canfd_getStatus(&canfd1_status, &spican1);
+  canfd_getStatus(&canfd2_status, &spican2);
+  canfd_getStatus(&canfd3_status, &spican3);
+  canfd_getStatus(&canfd4_status, &spican4);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+//  TxHeader.StdId = 0x01;
+//  TxHeader.ExtId = 0x00;
+//  TxHeader.RTR = CAN_RTR_DATA;
+//  TxHeader.IDE = CAN_ID_STD;
+//  TxHeader.DLC = 8;
+//  TxHeader.TransmitGlobalTime = DISABLE;
 
   while (1)
   {

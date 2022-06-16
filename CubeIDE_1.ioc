@@ -105,7 +105,6 @@ NVIC.MemoryManagement_IRQn=true\:0\:0\:false\:false\:true\:false\:false\:true
 NVIC.NonMaskableInt_IRQn=true\:0\:0\:false\:false\:true\:false\:false\:true
 NVIC.PendSV_IRQn=true\:0\:0\:false\:false\:true\:false\:false\:true
 NVIC.PriorityGroup=NVIC_PRIORITYGROUP_4
-NVIC.SPI2_IRQn=true\:0\:0\:false\:false\:true\:true\:true\:true
 NVIC.SVCall_IRQn=true\:0\:0\:false\:false\:true\:false\:false\:true
 NVIC.SysTick_IRQn=true\:15\:0\:false\:false\:true\:false\:true\:true
 NVIC.TIM6_DAC_IRQn=true\:14\:0\:true\:false\:true\:true\:true\:true

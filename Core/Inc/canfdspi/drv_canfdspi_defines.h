@@ -213,15 +213,15 @@ typedef enum {
 //! CAN Operation Modes
 
 typedef enum {
-    CAN_NORMAL_MODE = 0x00,
-    CAN_SLEEP_MODE = 0x01,
-    CAN_INTERNAL_LOOPBACK_MODE = 0x02,
-    CAN_LISTEN_ONLY_MODE = 0x03,
-    CAN_CONFIGURATION_MODE = 0x04,
-    CAN_EXTERNAL_LOOPBACK_MODE = 0x05,
-    CAN_CLASSIC_MODE = 0x06,
-    CAN_RESTRICTED_MODE = 0x07,
-    CAN_INVALID_MODE = 0xFF
+    CAN_NORMAL_MODE 			= 0x00,
+    CAN_SLEEP_MODE 				= 0x01,
+    CAN_INTERNAL_LOOPBACK_MODE 	= 0x02,
+    CAN_LISTEN_ONLY_MODE 		= 0x03,
+    CAN_CONFIGURATION_MODE 		= 0x04,
+    CAN_EXTERNAL_LOOPBACK_MODE 	= 0x05,
+    CAN_CLASSIC_MODE 			= 0x06,
+    CAN_RESTRICTED_MODE 		= 0x07,
+    CAN_INVALID_MODE 			= 0xFF
 } CAN_OPERATION_MODE;
 
 //! Transmit Bandwidth Sharing
@@ -421,10 +421,11 @@ typedef union _CAN_RX_MSGOBJ {
     struct {
         CAN_MSGOBJ_ID id;
         CAN_RX_MSGOBJ_CTRL ctrl;
-        CAN_MSG_TIMESTAMP timeStamp;
+        //CAN_MSG_TIMESTAMP timeStamp;
+        uint8_t message[8];
     } bF;
-    uint32_t word[3];
-    uint8_t byte[12];
+    uint32_t word[4];
+    uint8_t byte[16];
 } CAN_RX_MSGOBJ;
 
 //! CAN TEF Message Object
