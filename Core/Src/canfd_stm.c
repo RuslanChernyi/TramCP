@@ -212,13 +212,17 @@ void spican_read32bitReg(uint32_t address, uint8_t * reg_buffer)
 
 void spican_readBytes(uint32_t address, uint8_t * rx_buffer, uint32_t size)
 {
-	int8_t buffer[2] = {0};
+	int8_t buffer[2 + size];
 	uint16_t writeCommand = (address & 0x0FFF) | (cINSTRUCTION_READ << 12);
 	buffer[0] = writeCommand >> 8;
 	buffer[1] = writeCommand & 0xFF;
+	for(int i = 2; i < sizeof(buffer); i++)
+	{
+		buffer[i] = 0;
+	}
 
 	HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 0);
-	SPI_Transmit(buffer, 2, SPI2);
+	SPI_Transmit(buffer, sizeof(buffer), SPI2);
 	SPI_Receive(rx_buffer, size, SPI2);
 	HAL_GPIO_WritePin(CAN6_CS_GPIO_Port, CAN6_CS_Pin, 1);
 
