@@ -324,18 +324,51 @@ typedef struct mcp_status_t
 
 }mcp_status;
 
+typedef enum
+{
+	RECEIVE_FIFO,
+	TRANSMIT_FIFO
+}fifo_type;
+
+typedef struct
+{
+	REG_CiFIFOCON FIFOxCON;
+	REG_CiFIFOSTA FIFOxSTA;
+	REG_CiFIFOUA  FIFOxUA;
+
+	fifo_type fifotype;
+	CAN_FIFO_CHANNEL fifo_number;
+	CAN_FILTER fifo_filter_number;
+}FIFO_t;
+
+typedef struct
+{
+	REG_CiTEFCON TEFCON;
+	REG_CiTEFSTA TEFSTA;
+	REG_CiTEFUA	 TEFUA;
+}TransmitEventFIFO;
+
+typedef struct
+{
+	REG_CiTXQCON TEFCON;
+	REG_CiTXQSTA TEFSTA;
+	REG_CiTXQUA	 TEFUA;
+}TransmitQueue;
+
 typedef struct UsedFIFOs_t
 {
-	REG_CiFIFOCON FIFO1CON;
-	REG_CiFIFOSTA FIFO1STA;
-	REG_CiFIFOCON FIFO2CON;
-	REG_CiFIFOSTA FIFO2STA;
+	TransmitEventFIFO TEF;
+	TransmitQueue TQ;
+	FIFO_t one;
+	FIFO_t two;
+	FIFO_t three;
 }UsedFIFOs;
 
 typedef struct spiCAN_t
 {
 	SPI_TypeDef * SPIx;
 
+	DMA_TypeDef * DMAx;
 	DMA_Stream_TypeDef * DMAStreamX;
 
 	uint32_t CS_Pin;
@@ -371,6 +404,7 @@ uint32_t canfd_transmit(uint8_t * message, uint32_t FIFOx, spiCAN * spican);
 CAN_RX_MSGOBJ canfd_receive(uint32_t FIFOx, spiCAN * spican);
 
 void canfd_RAMInit(spiCAN * spican);
+void canfd_reset(spiCAN * spican);
 
 uint32_t canfd_checkIfFIFOisNotFull(uint32_t FIFOx, spiCAN * spican);
 uint32_t canfd_checkIfFIFOisNotEmpty(uint32_t FIFOx, spiCAN * spican);

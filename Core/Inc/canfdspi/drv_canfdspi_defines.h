@@ -209,6 +209,15 @@ typedef enum {
     CAN_FILTER_TOTAL,
 } CAN_FILTER;
 
+typedef enum {
+	FLTCON1,
+	FLTCON2,
+	FLTCON3,
+	FLTCON4,
+	FLTCON5,
+	FLTCON6,
+	FLTCON7
+}CAN_FILTER_CONTROL_REGs;
 
 //! CAN Operation Modes
 

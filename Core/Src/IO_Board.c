@@ -1,6 +1,11 @@
 #include "IO_Board.h"
 #include <stdlib.h>
 #include "modbus_ascii.h"
+#include "drv_canfdspi_defines.h"
+#include "drv_canfdspi_register.h"
+#include "canfd_stm.h"
+#include "canfd_stm_config.h"
+
 
 #define NO_PACKET_RECEIVED	0x1
 
@@ -45,6 +50,18 @@ extern IOBoard_t io2;
 extern IOBoard_t io3;
 extern IOBoard_t io4;
 
+extern spiCAN spican1;
+extern spiCAN spican2;
+extern spiCAN spican3;
+extern spiCAN spican4;
+
+extern UsedFIFOs canfd1_fifos;
+
+extern mcp_status canfd1_status;
+extern mcp_status canfd2_status;
+extern mcp_status canfd3_status;
+extern mcp_status canfd4_status;
+
 uint32_t receiveFromIO2(IOBoard_t * IOBoard);
 
 void askIO(CAN_HandleTypeDef * hcan, IOboard_request_t * req);
@@ -69,9 +86,9 @@ void place_into_table(IOBoard_t * IOBoard);
 void IOboard1Init(void)
 {
 	io1.BoardNr = 0;
-	//io1.messageID = (uint32_t)0xFU<<5;
-	io1.messageID = (uint32_t)0xFU;
-	io1.receivedID = 0xF0;
+	//io1.messageID = 0xFU<<5;
+	io1.messageID = 0x01;//0xFU;
+	io1.receivedID = 0x01;//0xF0;
 	io1.hcan = &hcan2;
 	io1.lastCommand = 0;
 	io1.currentCommand = 0;
@@ -81,7 +98,7 @@ void IOboard1Init(void)
 void IOboard2Init(void)
 {
 	io2.BoardNr = 1;
-	io2.messageID = (uint32_t)0x10U;
+	io2.messageID = 0x10U;
 	io2.receivedID = 0xF1;
 	io2.hcan = &hcan2;
 	io2.lastCommand = 0;
@@ -92,7 +109,7 @@ void IOboard2Init(void)
 void IOboard3Init(void)
 {
 	io3.BoardNr = 2;
-	io3.messageID = (uint32_t)0x11U;
+	io3.messageID = 0x11U;
 	io3.receivedID = 0xF2;
 	io3.hcan = &hcan2;
 	io3.lastCommand = 0;
@@ -413,6 +430,7 @@ void ask_DINs(IOBoard_t * IOBoard)								/*** 7 ***/
 	message_Payload[4] = 0x3B;
 
 	HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+//	canfd_getStatus(&canfd3_status, &spican3);
 }
 void ask_for_XA(IOBoard_t * IOBoard)							/*** 8 ***/
 {

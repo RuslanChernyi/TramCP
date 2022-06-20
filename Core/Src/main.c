@@ -26,10 +26,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "drv_canfdspi_api.h"
 #include "drv_canfdspi_defines.h"
 #include "drv_canfdspi_register.h"
-#include "drv_spi.h"
 #include "IO_Board.h"
 #include "modbus_ascii.h"
 #include "canfd_stm.h"
@@ -58,67 +56,39 @@
 /* USER CODE BEGIN PV */
 CAN_TxHeaderTypeDef TxHeader;
 CAN_RxHeaderTypeDef RxHeader;
-uint8_t TxData[2];
 uint8_t RxData_fifo[8];
 uint8_t Unfiltered_CAN_msgs[8];
-uint32_t CANst;
-uint8_t readiness = 0;
-uint8_t DINstate = 0;
-uint8_t Received_ADC[3];
 uint8_t first_packet[8];
 uint8_t second_packet[8];
 uint8_t third_packet[8];
 uint8_t fourth_packet[8];
-uint8_t IOboardBuffer[20];
 
 modbus_ascii_request_msg_t modbus_request_msg;
 modbus_ascii_response_msg_t modbus_response_msg;
 reqest_info_t request_info;
 
-CAN_CONFIG can_config;
 
-//modbus_ascii_table_t MODBUS_Table;
 new_MODBUSTable_uni_t New_MODBUS_Table;
 uint8_t XA2_dir;
-uint32_t MCU_CONTROL_COUNTER;
 
 uint32_t next_case = 1;
 
-uint32_t is_io_set;
 IOboard_request_t IOboard_req;
 
 uint32_t error_notice;
 uint32_t position_in_program;
 
-uint32_t cmd_for_IOboard;
-uint32_t IOboard_adc_in_process;
 uint32_t IOADCs[] = {CH2, CH3, CH4, CH5, CH7, CH14, CH15};
-
-uint32_t processInIO;
-uint32_t processInDrive;
 
 IOBoard_t io1;
 IOBoard_t io2;
 IOBoard_t io3;
 IOBoard_t io4;
 
-uint32_t adc_nr;
-IOBoard_t IOBoard1;
-IOBoard_t IOBoard2;
-IOBoard_t IOBoard3;
-
-uint32_t speed_counter;
-uint32_t speed_direction;
-
 uint8_t usart1_receive_buffer[17];
-uint32_t usart1_error;
 uint32_t modbus_message_received;
 
-uint32_t current_block;
 uint32_t allow_placement;
-
-
-uint8_t my_buffer[4] = {0};
 
 spiCAN spican1;
 spiCAN spican2;
@@ -190,37 +160,33 @@ int main(void)
   IOboard2Init();
   IOboard3Init();
 
+  //  spiCAN1_Init();
+  //  spiCAN2_Init();
+  spiCAN3_Init();
+  spiCAN4_Init();
+
+  //  DMA_SPI1RXInit();
+  DMA_SPI2RXInit();
+
+  //  canfd_configure(&spican1);
+  //  canfd_configure(&spican2);
+  canfd_configure(&spican3);
+  canfd_configure(&spican4);
+
+  //  canfd_getStatus(&canfd1_status, &spican1);
+  //  canfd_getStatus(&canfd2_status, &spican2);
+  canfd_getStatus(&canfd3_status, &spican3);
+  canfd_getStatus(&canfd4_status, &spican4);
+
   HAL_TIM_Base_Start_IT(&htim6);
   HAL_TIM_Base_Start_IT(&htim7);
 
 
-  spiCAN1_Init();
-  spiCAN2_Init();
-  spiCAN3_Init();
-  spiCAN4_Init();
 
-  DMA_SPI1RXInit();
-  DMA_SPI2RXInit();
-
-  canfd_configure(&spican1);
-  canfd_configure(&spican2);
-  canfd_configure(&spican3);
-  canfd_configure(&spican4);
-
-  canfd_getStatus(&canfd1_status, &spican1);
-  canfd_getStatus(&canfd2_status, &spican2);
-  canfd_getStatus(&canfd3_status, &spican3);
-  canfd_getStatus(&canfd4_status, &spican4);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-//  TxHeader.StdId = 0x01;
-//  TxHeader.ExtId = 0x00;
-//  TxHeader.RTR = CAN_RTR_DATA;
-//  TxHeader.IDE = CAN_ID_STD;
-//  TxHeader.DLC = 8;
-//  TxHeader.TransmitGlobalTime = DISABLE;
 
   while (1)
   {
@@ -241,6 +207,16 @@ int main(void)
 	  }
 	  else
 	  {
+		  static uint8_t my_message[8] = {0};
+
+		  for(uint32_t i = 0; i < sizeof(my_message); i++)
+		  {
+			  my_message[i] = i;
+		  }
+		  canfd_getStatus(&canfd3_status, &spican3);
+		  canfd_transmit(my_message, CAN_FIFO_CH2, &spican3);
+		  canfd_getStatus(&canfd4_status, &spican4);
+//		  canfd_transmit(my_message, CAN_FIFO_CH2, &spican4);
 		  __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
 	  }
 
@@ -297,44 +273,44 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
-{
-	uint8_t id = (hcan->Instance->sFIFOMailBox[0].RIR & STID)>>21;
-	switch(id)
-	{
-		case 20:
-			HAL_CAN_GetRxMessage(&hcan2, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
-			for(int i = 0; i < 8; i++)
-			{
-				first_packet[i] = RxData_fifo[i];
-			}
-			break;
-		case 21:
-			HAL_CAN_GetRxMessage(&hcan2, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
-			for(int i = 0; i < 8; i++)
-			{
-				second_packet[i] = RxData_fifo[i];
-			}
-			break;
-		case 22:
-			HAL_CAN_GetRxMessage(&hcan2, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
-			for(int i = 0; i < 8; i++)
-			{
-				third_packet[i] = RxData_fifo[i];
-			}
-			break;
-		case 23:
-			HAL_CAN_GetRxMessage(&hcan2, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
-			for(int i = 0; i < 8; i++)
-			{
-				fourth_packet[i] = RxData_fifo[i];
-			}
-			break;
-		default:
-			break;
-	}
-	allow_placement = 1;
-}
+//void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
+//{
+//	uint8_t id = (hcan->Instance->sFIFOMailBox[0].RIR & STID)>>21;
+//	switch(id)
+//	{
+//		case 20:
+//			HAL_CAN_GetRxMessage(&hcan2, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
+//			for(int i = 0; i < 8; i++)
+//			{
+//				first_packet[i] = RxData_fifo[i];
+//			}
+//			break;
+//		case 21:
+//			HAL_CAN_GetRxMessage(&hcan2, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
+//			for(int i = 0; i < 8; i++)
+//			{
+//				second_packet[i] = RxData_fifo[i];
+//			}
+//			break;
+//		case 22:
+//			HAL_CAN_GetRxMessage(&hcan2, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
+//			for(int i = 0; i < 8; i++)
+//			{
+//				third_packet[i] = RxData_fifo[i];
+//			}
+//			break;
+//		case 23:
+//			HAL_CAN_GetRxMessage(&hcan2, CAN_RX_FIFO0, &RxHeader, RxData_fifo);
+//			for(int i = 0; i < 8; i++)
+//			{
+//				fourth_packet[i] = RxData_fifo[i];
+//			}
+//			break;
+//		default:
+//			break;
+//	}
+//	allow_placement = 1;
+//}
 void HAL_USART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	return;

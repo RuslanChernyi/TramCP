@@ -23,10 +23,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "modbus_ascii.h"
-#include "drv_canfdspi_api.h"
 #include "drv_canfdspi_defines.h"
 #include "drv_canfdspi_register.h"
-#include "drv_spi.h"
 #include "IO_Board.h"
 #include "Drive.h"
 #include "systick.h"
@@ -70,35 +68,21 @@ extern UART_HandleTypeDef huart1;
 /* USER CODE BEGIN EV */
 extern CAN_TxHeaderTypeDef TxHeader;
 extern CAN_RxHeaderTypeDef RxHeader;
-extern uint8_t RxData_fifo[8];
-extern CAN_CONFIG can_config;
-extern uint32_t MCU_CONTROL_COUNTER;
-extern uint32_t next_case;
 extern IOboard_request_t IOboard_req;
 extern uint32_t position_in_program;
-extern uint32_t cmd_for_IOboard;
-extern uint32_t IOboard_adc_in_process;
-extern IOBoard_t IOBoard1;
-extern IOBoard_t IOBoard2;
-extern IOBoard_t IOBoard3;
+
 extern uint8_t usart1_receive_buffer[17];
-extern uint32_t usart1_error;
 extern uint32_t modbus_message_received;
-extern uint32_t packet_counter;
+
 extern uint8_t first_packet[8];
 extern uint8_t second_packet[8];
 extern uint8_t third_packet[8];
 extern uint8_t fourth_packet[8];
+
 extern IOBoard_t io1;
 extern IOBoard_t io2;
 extern IOBoard_t io3;
 extern IOBoard_t io4;
-extern uint8_t spi1_rx_buf[20];
-extern uint8_t stop_spi_tx;
-extern uint8_t outputNr;
-extern uint32_t direction;
-extern uint8_t spi_receive_blahbuffer[4];
-extern uint8_t * p_spi_rxBuffer;
 /* USER CODE END EV */
 
 /******************************************************************************/
