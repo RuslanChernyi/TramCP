@@ -650,10 +650,6 @@ typedef union _REG_CiFLTCON_BYTE {
     uint8_t byte;
 } REG_CiFLTCON_BYTE;
 
-//typedef struct REG32_CiFLTCON_t
-//{
-//
-//}REG32_CiFLTCON;
 typedef union REG_CiFLTCON_t
 {
 	struct

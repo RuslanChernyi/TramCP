@@ -95,7 +95,9 @@ spiCAN spican2;
 spiCAN spican3;
 spiCAN spican4;
 
-UsedFIFOs canfd1_fifos = {0};
+UsedFIFOs canfd3_fifos = {0};
+UsedFIFOs canfd4_fifos = {0};
+
 
 mcp_status canfd1_status = {0};
 mcp_status canfd2_status = {0};
@@ -170,8 +172,8 @@ int main(void)
 
   //  canfd_configure(&spican1);
   //  canfd_configure(&spican2);
-  canfd_configure(&spican3);
-  canfd_configure(&spican4);
+  canfd_configure(&canfd3_fifos, &spican3);
+  canfd_configure(&canfd4_fifos, &spican4);
 
   //  canfd_getStatus(&canfd1_status, &spican1);
   //  canfd_getStatus(&canfd2_status, &spican2);
@@ -214,9 +216,10 @@ int main(void)
 			  my_message[i] = i;
 		  }
 		  canfd_getStatus(&canfd3_status, &spican3);
-		  canfd_transmit(my_message, CAN_FIFO_CH2, &spican3);
+		  canfd_transmit(my_message, CAN_FIFO_CH1, &spican3);
 		  canfd_getStatus(&canfd4_status, &spican4);
 //		  canfd_transmit(my_message, CAN_FIFO_CH2, &spican4);
+		  received_msg = canfd_receive(CAN_FIFO_CH2, &spican3);
 		  __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
 	  }
 

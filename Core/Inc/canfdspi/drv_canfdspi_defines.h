@@ -210,6 +210,7 @@ typedef enum {
 } CAN_FILTER;
 
 typedef enum {
+	FLTCON0,
 	FLTCON1,
 	FLTCON2,
 	FLTCON3,

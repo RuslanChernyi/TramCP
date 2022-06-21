@@ -86,9 +86,8 @@ void place_into_table(IOBoard_t * IOBoard);
 void IOboard1Init(void)
 {
 	io1.BoardNr = 0;
-	//io1.messageID = 0xFU<<5;
-	io1.messageID = 0x01;//0xFU;
-	io1.receivedID = 0x01;//0xF0;
+	io1.messageID = 0xFU;
+	io1.receivedID = 0xF0;
 	io1.hcan = &hcan2;
 	io1.lastCommand = 0;
 	io1.currentCommand = 0;

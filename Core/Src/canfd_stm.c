@@ -227,16 +227,16 @@ REG_CiTXREQ canfd_requestTransmission(uint32_t FIFOx, spiCAN * spican)
 }
 
 // Increment FIFO
-void canfd_incrementFIFOandRequestTransmission(uint32_t FIFOx, REG_CiFIFOCON * fifocon, spiCAN * spican)
+void canfd_incrementFIFOandRequestTransmission(uint32_t FIFOx, spiCAN * spican)
 {
+	REG_CiFIFOCON fifocon = {0};
 	uint32_t FIFOctrl_address = cREGADDR_CiFIFOCON + (CiFIFO_OFFSET * FIFOx);
+	spican_read32bitReg_withDMA(FIFOctrl_address, fifocon.byte, spican);
 
-	spican_read32bitReg_withDMA(FIFOctrl_address, fifocon->byte, spican);
-
-	fifocon->txBF.UINC = 1;
-	fifocon->txBF.TxRequest = 1;
-	spican_write32bitReg(FIFOctrl_address, fifocon->byte, spican);
-	spican_read32bitReg_withDMA(FIFOctrl_address, fifocon->byte, spican);
+	fifocon.txBF.UINC = 1;
+	fifocon.txBF.TxRequest = 1;
+	spican_write32bitReg(FIFOctrl_address, fifocon.byte, spican);
+	spican_read32bitReg_withDMA(FIFOctrl_address, fifocon.byte, spican);
 }
 
 // Check next transmit message address
@@ -330,7 +330,7 @@ uint32_t canfd_transmit(uint8_t * message, uint32_t FIFOx, spiCAN * spican)
 	// Send message
 	spican_write8bitArray(InRAMmsg_address, msgID.byte, sizeof(msgID.byte), spican);
 	// Increment FIFO and request sending the message
-	canfd_incrementFIFOandRequestTransmission(FIFOx, &canfd1_fifos.one.FIFOxCON, spican);
+	canfd_incrementFIFOandRequestTransmission(FIFOx, spican);
 
 	return HAL_OK;
 }
@@ -348,7 +348,7 @@ CAN_RX_MSGOBJ canfd_receive(uint32_t FIFOx, spiCAN * spican)
 	uint32_t InRAMmsg_address = canfd_getNextFIFOmsgAddress(FIFOx, spican);
 	spican_readBytes_withDMA(InRAMmsg_address, RxMsg.byte, sizeof(RxMsg.byte), spican);
 	// Increment FIFO
-	canfd_incrementFIFOandRequestTransmission(FIFOx, &canfd1_fifos.two.FIFOxCON, spican);
+	canfd_incrementFIFOandRequestTransmission(FIFOx, spican);
 	return RxMsg;
 }
 
