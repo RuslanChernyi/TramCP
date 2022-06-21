@@ -22,7 +22,7 @@ extern reqest_info_t request_info;
 const char ASCII_Table[] ={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
 //extern modbus_ascii_table_t MODBUS_Table;
-extern new_MODBUSTable_uni_t New_MODBUS_Table;
+extern ModbusTable_t MODBUS_Table;
 extern uint32_t error_notice;
 
 // Receive a request
@@ -134,25 +134,19 @@ uint8_t lrc_generation(uint32_t size, uint8_t* byte_array)
 	return (uint8_t) LRC;
 }
 
-// Create Error reply
-
-// Create normal reply
-
 // Send reply
 uint32_t send_modbus_response(UART_HandleTypeDef* uart, reqest_info_t * req)
 {
 	if(req->quantity > 0)
 	{
 		uint8_t ascii_buffer[11 + req->quantity*4];
-//		uint8_t ascii_buffer[127];
-//		modbus_ascii_response_msg response;
 		/*** Get Data from Modbus table to a buffer ***/
 		uint32_t byte_quantity = req->quantity * 2;	// For 29 datas give 58 bytes
 		uint8_t buffer[byte_quantity];
 		int m = 0;
 		for(int n = req->starting_address; n < byte_quantity; n++)
 		{
-			buffer[m] = New_MODBUS_Table.byte_table[n];
+			buffer[m] = MODBUS_Table.byte_table[n];
 			m++;
 		}
 		/*** Start forming ASCII message ***/
@@ -163,7 +157,7 @@ uint32_t send_modbus_response(UART_HandleTypeDef* uart, reqest_info_t * req)
 		int j = 7;
 		for(int i = req->starting_address; i < byte_quantity; i++)
 		{
-			HexASCII2(New_MODBUS_Table.byte_table[i], &ascii_buffer[j]);
+			HexASCII2(MODBUS_Table.byte_table[i], &ascii_buffer[j]);
 			j += 2;
 		}
 //		/*** LRC Calculation ***/
@@ -208,13 +202,11 @@ ascii_hex_code_t HexASCII (uint8_t hex_value)
 	hex_ascii_conv_val.second_symbol = ASCII_Table[hex_value & 0x0F];			// Chop second 4 bits
 	return hex_ascii_conv_val;
 }
-
 void HexASCII2(uint8_t hex_value, uint8_t * ascii_buffer)
 {
 	*(ascii_buffer+1) = ASCII_Table[(hex_value & 0x0F)];
 	*(ascii_buffer) = ASCII_Table[(hex_value & 0xF0)>>4];
 }
-
 uint8_t ASCIIHex (ascii_hex_code_t * ascii_value)
 {
 	uint8_t ascii_hex_conv_val = 0;

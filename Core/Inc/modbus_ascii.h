@@ -88,13 +88,13 @@ typedef union mdb_ascii_resp
 	uint8_t ascii_message_array[11];
 }modbus_ascii_response_msg_t;
 
-typedef union mdb_ascii_table
-{
-	impulse_drive_table_t imp_drv_table1;
-	io_board_table_t	io_board_table1;
-
-	uint8_t modbus_table[45];
-}modbus_ascii_table_t;
+//typedef union mdb_ascii_table
+//{
+//	impulse_drive_table_t imp_drv_table1;
+//	io_board_table_t	io_board_table1;
+//
+//	uint8_t modbus_table[45];
+//}modbus_ascii_table_t;
 
 
 uint32_t send_modbus_response(UART_HandleTypeDef* uart, reqest_info_t * req);

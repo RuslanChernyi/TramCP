@@ -4,6 +4,9 @@
 #include "main.h"
 #include "spi.h"
 #include "can.h"
+#include "canfd_stm.h"
+#include "canfd_stm_config.h"
+
 
 #define IOBOARD_N0	0
 
@@ -24,6 +27,11 @@ typedef enum XAs
 	XA2
 }XAs_t;
 
+typedef enum
+{
+	INTERNAL_CAN,
+	EXTERNAL_CAN
+}CAN_used_t;
 
 typedef struct IOboard_request
 {
@@ -34,10 +42,16 @@ typedef struct IOboard_request
 
 typedef struct IOBoard
 {
+	spiCAN * spican;
+	CAN_FIFO_CHANNEL External_FIFO_Channel;
+	UsedFIFOs * used_fifos;
+	CAN_HandleTypeDef * hcan;
+	CAN_used_t CAN_used;
+
 	uint32_t BoardNr;
 	uint32_t messageID;
 	uint32_t receivedID;
-	CAN_HandleTypeDef * hcan;
+
 	uint32_t lastCommand;
 	uint32_t currentCommand;
 	uint32_t nextCommand;

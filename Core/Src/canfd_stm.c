@@ -24,7 +24,7 @@ void spiCAN1_Init()
 	spican1.SPIx = SPI1;
 
 	spican1.DMAx = DMA2;
-	spican1.DMAStreamX = DMA2_Stream0;
+	spican1.SPI_TX_DMAStreamX = DMA2_Stream0;
 
 	spican1.CS_Port = CAN3_CS_GPIO_Port;
 	spican1.CS_Pin = CAN3_CS_Pin;
@@ -47,7 +47,7 @@ void spiCAN2_Init()
 	spican2.SPIx = SPI1;
 
 	spican2.DMAx = DMA2;
-	spican2.DMAStreamX = DMA2_Stream0;
+	spican2.SPI_TX_DMAStreamX = DMA2_Stream0;
 
 	spican2.CS_Port = CAN4_CS_GPIO_Port;
 	spican2.CS_Pin = CAN4_CS_Pin;
@@ -70,7 +70,7 @@ void spiCAN3_Init()
 	spican3.SPIx = SPI2;
 
 	spican3.DMAx = DMA1;
-	spican3.DMAStreamX = DMA1_Stream3;
+	spican3.SPI_TX_DMAStreamX = DMA1_Stream3;
 
 	spican3.CS_Port = CAN5_CS_GPIO_Port;
 	spican3.CS_Pin = CAN5_CS_Pin;
@@ -93,7 +93,7 @@ void spiCAN4_Init()
 	spican4.SPIx = SPI2;
 
 	spican4.DMAx = DMA1;
-	spican4.DMAStreamX = DMA1_Stream3;
+	spican4.SPI_TX_DMAStreamX = DMA1_Stream3;
 
 	spican4.CS_Port = CAN6_CS_GPIO_Port;
 	spican4.CS_Pin = CAN6_CS_Pin;
@@ -295,17 +295,17 @@ void canfd_resetFIFO(uint32_t FIFOx, REG_CiFIFOCON * fifocon, spiCAN * spican)
 }
 
 // Can Transmit
-uint32_t canfd_transmit(uint8_t * message, uint32_t FIFOx, spiCAN * spican)
+uint32_t canfd_transmit(CAN_TxHeaderTypeDef * TxHeader, uint8_t * message, uint32_t FIFOx, spiCAN * spican)
 {
 	canMsg msgID = {0};
 	uint8_t rx_buff[16] = {0};
 	msgID.id.EID = 0;
-	msgID.id.SID = 0x1;
+	msgID.id.SID = TxHeader->StdId;
 	msgID.id.SID11 = 0;
 
-	msgID.ctrl.DLC = 0x8;
-	msgID.ctrl.IDE = 0;
-	msgID.ctrl.RTR = 0;
+	msgID.ctrl.DLC = TxHeader->DLC;
+	msgID.ctrl.IDE = TxHeader->IDE;
+	msgID.ctrl.RTR = TxHeader->RTR;
 	msgID.ctrl.BRS = 0;	// If Bit rate switch is used, data bytes are transmited with DBR otherwise the whole message is transmited with NBR
 	msgID.ctrl.FDF = 0;
 	msgID.ctrl.ESI = 0;
@@ -334,6 +334,9 @@ uint32_t canfd_transmit(uint8_t * message, uint32_t FIFOx, spiCAN * spican)
 
 	return HAL_OK;
 }
+
+// Get Received ID
+
 // Can Receive
 CAN_RX_MSGOBJ canfd_receive(uint32_t FIFOx, spiCAN * spican)
 {
@@ -360,9 +363,34 @@ void spican_writeByte(uint32_t address, uint8_t message, spiCAN * spican)
 	buffer[0] = writeCommand >> 8;
 	buffer[1] = writeCommand & 0xFF;
 	buffer[2] = message;
+//ConfigureDMA///////////////////////////////////////////////////////////////////////////
+	// Disable DMA
+	spican->SPI_RX_DMAStreamX->CR &= ~(1U<<0);	// Disable stream 4
+	while(spican->SPI_RX_DMAStreamX->CR & (1U<<0)) // Check that stream is disabled, if not disable again
+	{
+		spican->SPI_RX_DMAStreamX->CR &= ~(1U<<0);	// Disable stream 4
+	}
+	//Clear status flags
+	if(spican->DMAx == DMA1)
+	{
+		spican->DMAx->HIFCR = (1U<<5); // Clear Stream 4 Tranfer complete flag
+	}
+	else	// DMA2
+	{
+		spican->DMAx->LIFCR = (1U<<27); // Clear Stream 3 Tranfer complete flag
+	}
+	// Set amount of data to read by DMA
+	spican->SPI_RX_DMAStreamX->NDTR = 3;
+
+	// Select memory source
+	spican->SPI_RX_DMAStreamX->M0AR = (uint32_t)buffer;
+	// Start DMA
+	spican->SPI_RX_DMAStreamX->CR |= (1U<<0);
+//ConfigureDMA///////////////////////////////////////////////////////////////////////////
+
 
 	HAL_GPIO_WritePin(spican->CS_Port, spican->CS_Pin, 0);
-	SPI_Transmit(buffer, 3, spican->SPIx);
+	//SPI_Transmit(buffer, 3, spican->SPIx);
 	HAL_GPIO_WritePin(spican->CS_Port, spican->CS_Pin, 1);
 }
 void spican_write8bitArray(uint32_t address, uint8_t * message, uint32_t size, spiCAN * spican)
@@ -423,10 +451,10 @@ uint8_t spican_readByte_withDMA(uint32_t address, spiCAN * spican)
 	buffer[1] = writeCommand & 0xFF;
 //ConfigureDMA///////////////////////////////////////////////////////////////////////////
 	// Disable DMA
-	spican->DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
-	while(spican->DMAStreamX->CR & (1U<<0)) // Check that stream is disabled, if not disable again
+	spican->SPI_TX_DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
+	while(spican->SPI_TX_DMAStreamX->CR & (1U<<0)) // Check that stream is disabled, if not disable again
 	{
-		spican->DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
+		spican->SPI_TX_DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
 	}
 	//Clear status flags
 	if(spican->DMAx == DMA1)
@@ -438,11 +466,11 @@ uint8_t spican_readByte_withDMA(uint32_t address, spiCAN * spican)
 		spican->DMAx->LIFCR = (1U<<5); // Clear Stream 3 Tranfer complete flag
 	}
 	// Set amount of data to read by DMA
-	spican->DMAStreamX->NDTR = 3;
+	spican->SPI_TX_DMAStreamX->NDTR = 3;
 	// Select memory destination
-	spican->DMAStreamX->M0AR = (uint32_t)buffer;
+	spican->SPI_TX_DMAStreamX->M0AR = (uint32_t)buffer;
 	// Start DMA
-	spican->DMAStreamX->CR |= (1U<<0);
+	spican->SPI_TX_DMAStreamX->CR |= (1U<<0);
 //ConfigureDMA///////////////////////////////////////////////////////////////////////////
 
 	HAL_GPIO_WritePin(spican->CS_Port, spican->CS_Pin, 0);
@@ -450,10 +478,10 @@ uint8_t spican_readByte_withDMA(uint32_t address, spiCAN * spican)
 	HAL_GPIO_WritePin(spican->CS_Port, spican->CS_Pin, 1);
 
 	// Disable DMA
-	spican4.DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
-	while(spican->DMAStreamX->CR & (1U<<0)) // Check that stream is disabled, if not disable again
+	spican4.SPI_TX_DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
+	while(spican->SPI_TX_DMAStreamX->CR & (1U<<0)) // Check that stream is disabled, if not disable again
 	{
-		spican->DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
+		spican->SPI_TX_DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
 	}
 
 	return buffer[2];
@@ -481,10 +509,10 @@ void spican_read32bitReg_withDMA(uint32_t address, uint8_t * reg_buffer, spiCAN 
 	buffer[1] = writeCommand & 0xFF;
 //ConfigureDMA///////////////////////////////////////////////////////////////////////////
 	// Disable DMA
-	spican->DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
-	while(spican->DMAStreamX->CR & (1U<<0)) // Check that stream is disabled, if not disable again
+	spican->SPI_TX_DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
+	while(spican->SPI_TX_DMAStreamX->CR & (1U<<0)) // Check that stream is disabled, if not disable again
 	{
-		spican->DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
+		spican->SPI_TX_DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
 	}
 	//Clear status flags
 	if(spican->DMAx == DMA1)
@@ -496,11 +524,11 @@ void spican_read32bitReg_withDMA(uint32_t address, uint8_t * reg_buffer, spiCAN 
 		spican->DMAx->LIFCR = (1U<<5); // Clear Stream 3 Tranfer complete flag
 	}
 	// Set amount of data to read by DMA
-	spican->DMAStreamX->NDTR = 6;
+	spican->SPI_TX_DMAStreamX->NDTR = 6;
 	// Select memory destination
-	spican->DMAStreamX->M0AR = (uint32_t)rx_buffer;
+	spican->SPI_TX_DMAStreamX->M0AR = (uint32_t)rx_buffer;
 	// Start DMA
-	spican->DMAStreamX->CR |= (1U<<0);
+	spican->SPI_TX_DMAStreamX->CR |= (1U<<0);
 //ConfigureDMA///////////////////////////////////////////////////////////////////////////
 	HAL_GPIO_WritePin(spican->CS_Port, spican->CS_Pin, 0);
 	SPI_Transmit(buffer, 6, spican->SPIx);
@@ -511,10 +539,10 @@ void spican_read32bitReg_withDMA(uint32_t address, uint8_t * reg_buffer, spiCAN 
 	reg_buffer[2] = rx_buffer[4];
 	reg_buffer[3] = rx_buffer[5];
 //Disable DMA///////////////////////////////////////////////////////////////////////////
-	spican->DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
-	while(spican->DMAStreamX->CR & (1U<<0)) // Check that stream is disabled, if not disable again
+	spican->SPI_TX_DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
+	while(spican->SPI_TX_DMAStreamX->CR & (1U<<0)) // Check that stream is disabled, if not disable again
 	{
-		spican->DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
+		spican->SPI_TX_DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
 	}
 //Disable DMA///////////////////////////////////////////////////////////////////////////
 }
@@ -550,10 +578,10 @@ void spican_readBytes_withDMA(uint32_t address, uint8_t * rx_buffer, uint32_t si
 	}
 //ConfigureDMA///////////////////////////////////////////////////////////////////////////
 	// Disable DMA
-	spican->DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
-	while(spican->DMAStreamX->CR & (1U<<0)) // Check that stream is disabled, if not disable again
+	spican->SPI_TX_DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
+	while(spican->SPI_TX_DMAStreamX->CR & (1U<<0)) // Check that stream is disabled, if not disable again
 	{
-		spican->DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
+		spican->SPI_TX_DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
 	}
 	//Clear status flags
 	if(spican->DMAx == DMA1)
@@ -565,11 +593,11 @@ void spican_readBytes_withDMA(uint32_t address, uint8_t * rx_buffer, uint32_t si
 		spican->DMAx->LIFCR = (1U<<5); // Clear Stream 3 Tranfer complete flag
 	}
 	// Set amount of data to read by DMA
-	spican->DMAStreamX->NDTR = buffer_size;
+	spican->SPI_TX_DMAStreamX->NDTR = buffer_size;
 	// Select memory destination
-	spican->DMAStreamX->M0AR = (uint32_t)buffer;
+	spican->SPI_TX_DMAStreamX->M0AR = (uint32_t)buffer;
 	// Start DMA
-	spican->DMAStreamX->CR |= (1U<<0);
+	spican->SPI_TX_DMAStreamX->CR |= (1U<<0);
 //ConfigureDMA///////////////////////////////////////////////////////////////////////////
 
 	HAL_GPIO_WritePin(spican->CS_Port, spican->CS_Pin, 0);
@@ -577,10 +605,10 @@ void spican_readBytes_withDMA(uint32_t address, uint8_t * rx_buffer, uint32_t si
 	HAL_GPIO_WritePin(spican->CS_Port, spican->CS_Pin, 1);
 ///////////////////////////////////////////////////////////////////////////////
 	// Disable DMA
-	spican->DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
-	while(spican->DMAStreamX->CR & (1U<<0)) // Check that stream is disabled, if not disable again
+	spican->SPI_TX_DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
+	while(spican->SPI_TX_DMAStreamX->CR & (1U<<0)) // Check that stream is disabled, if not disable again
 	{
-		spican->DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
+		spican->SPI_TX_DMAStreamX->CR &= ~(1U<<0);	// Disable the stream0
 	}
 ///////////////////////////////////////////////////////////////////////////////
 	for(int i = 0; i < size; i++)

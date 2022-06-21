@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "can.h"
+#include "dma.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -56,6 +57,7 @@
 /* USER CODE BEGIN PV */
 CAN_TxHeaderTypeDef TxHeader;
 CAN_RxHeaderTypeDef RxHeader;
+
 uint8_t RxData_fifo[8];
 uint8_t Unfiltered_CAN_msgs[8];
 uint8_t first_packet[8];
@@ -68,7 +70,7 @@ modbus_ascii_response_msg_t modbus_response_msg;
 reqest_info_t request_info;
 
 
-new_MODBUSTable_uni_t New_MODBUS_Table;
+ModbusTable_t MODBUS_Table;
 uint8_t XA2_dir;
 
 uint32_t next_case = 1;
@@ -147,13 +149,14 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_CAN1_Init();
-  MX_CAN2_Init();
   MX_SPI1_Init();
   MX_SPI2_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
   MX_TIM6_Init();
+  MX_DMA_Init();
   MX_TIM7_Init();
+  MX_CAN2_Init();
   /* USER CODE BEGIN 2 */
   USART1->CR1 |= (1U<<5);	// Enable Receive interrupt
   SPI1->CR1 |= (1U<<6);	// Enable SPI1
@@ -169,7 +172,7 @@ int main(void)
 
   //  DMA_SPI1RXInit();
   DMA_SPI2RXInit();
-
+  DMA_SPI2TXInit();
   //  canfd_configure(&spican1);
   //  canfd_configure(&spican2);
   canfd_configure(&canfd3_fifos, &spican3);
@@ -216,10 +219,8 @@ int main(void)
 			  my_message[i] = i;
 		  }
 		  canfd_getStatus(&canfd3_status, &spican3);
-		  canfd_transmit(my_message, CAN_FIFO_CH1, &spican3);
 		  canfd_getStatus(&canfd4_status, &spican4);
-//		  canfd_transmit(my_message, CAN_FIFO_CH2, &spican4);
-		  received_msg = canfd_receive(CAN_FIFO_CH2, &spican3);
+
 		  __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
 	  }
 

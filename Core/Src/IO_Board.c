@@ -34,7 +34,7 @@ extern uint8_t TxData[2];
 extern uint8_t RxData_fifo[8];
 extern uint8_t RxData_fifo1[8];
 //extern modbus_ascii_table_t MODBUS_Table;
-extern new_MODBUSTable_uni_t New_MODBUS_Table;
+extern ModbusTable_t MODBUS_Table;
 extern uint8_t IOboardBuffer[20];
 extern uint32_t readiness;
 extern uint32_t is_io_set;
@@ -56,6 +56,8 @@ extern spiCAN spican3;
 extern spiCAN spican4;
 
 extern UsedFIFOs canfd1_fifos;
+extern UsedFIFOs canfd3_fifos;
+extern UsedFIFOs canfd4_fifos;
 
 extern mcp_status canfd1_status;
 extern mcp_status canfd2_status;
@@ -85,6 +87,11 @@ void place_into_table(IOBoard_t * IOBoard);
 
 void IOboard1Init(void)
 {
+	io1.spican = &spican3;
+	io1.used_fifos = &canfd3_fifos;
+	io1.CAN_used = EXTERNAL_CAN;
+	io1.External_FIFO_Channel = io1.used_fifos->ReceiveFIFOs.two.FIFOx;
+
 	io1.BoardNr = 0;
 	io1.messageID = 0xFU;
 	io1.receivedID = 0xF0;
@@ -96,6 +103,11 @@ void IOboard1Init(void)
 }
 void IOboard2Init(void)
 {
+	io2.spican = &spican3;
+	io2.used_fifos = &canfd3_fifos;
+	io2.CAN_used = EXTERNAL_CAN;
+	io2.External_FIFO_Channel = io2.used_fifos->ReceiveFIFOs.three.FIFOx;
+
 	io2.BoardNr = 1;
 	io2.messageID = 0x10U;
 	io2.receivedID = 0xF1;
@@ -107,6 +119,11 @@ void IOboard2Init(void)
 }
 void IOboard3Init(void)
 {
+	io3.spican = &spican3;
+	io3.used_fifos = &canfd3_fifos;
+	io3.CAN_used = EXTERNAL_CAN;
+	io3.External_FIFO_Channel = io3.used_fifos->ReceiveFIFOs.three.FIFOx;
+
 	io3.BoardNr = 2;
 	io3.messageID = 0x11U;
 	io3.receivedID = 0xF2;
@@ -118,104 +135,103 @@ void IOboard3Init(void)
 }
 
 
-void askIO(CAN_HandleTypeDef * hcan, IOboard_request_t * req)
-{
-	uint8_t message_Payload[8] = {0};
-	TxHeader.StdId = 0x01;
-	TxHeader.ExtId = 0x00;
- 	TxHeader.RTR = CAN_RTR_DATA;
- 	TxHeader.IDE = CAN_ID_STD;
- 	TxHeader.DLC = 8;
- 	TxHeader.TransmitGlobalTime = DISABLE;
-	message_Payload[0] = 0x31;
-	message_Payload[1] = req->myboard_addr;
-	message_Payload[2] = req->cmd;
-	message_Payload[3] = req->element;
-	message_Payload[4] = 0x3B;
-
-	HAL_CAN_AddTxMessage(hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
-}
-
-uint32_t receiveFromIO(CAN_HandleTypeDef * hcan, uint8_t * receivedData, uint32_t boardID)
-{
-	// Check if something was received
-	if(hcan->Instance->RF0R & (0x3<<0))
-	{
-		if((hcan->Instance->sFIFOMailBox->RIR>>21) == (boardID))
-		{
-			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, receivedData);
-		}
-		else
-		{
-			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, Unfiltered_CAN_msgs);
-		}
-	}
-	else if(hcan->Instance->RF1R & (0x3<<0))
-	{
-		if((hcan->Instance->sFIFOMailBox->RIR>>21) == (boardID))
-		{
-			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &RxHeader, receivedData);
-		}
-		else
-		{
-			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &RxHeader, Unfiltered_CAN_msgs);
-		}
-	}
-	else
-	{
-		return NO_PACKET_RECEIVED;
-	}
-}
-
-void IOboard_request(CAN_HandleTypeDef * hcan, uint32_t boardNumber, uint32_t cmd, IOboard_request_t * req)
-{
-	uint32_t increment;
-	switch(cmd)
-	{
-		case ASK_FOR_READINESS:
-			req->cmd = cmd;
-			req->myboard_addr = boardNumber;
-			req->element = 0;	// Get the ADC channel
-			askIO(&hcan2, req);
-			break;
-		case ASK_FOR_DIN:
-
-			increment = 0;
-			break;
-		case ASK_FOR_ADC:
-			/*** When checking ADC channels increment command after CH15 **/
-			req->cmd = cmd;
-			req->myboard_addr = boardNumber;
-			req->element = IOADCs[IOboard_adc_in_process];	// Get the ADC channel
-			askIO(&hcan2, req);
-			if(IOboard_adc_in_process > 5)	// if ADC channel reached CH15 increament command and nulify ADC channel
-			{
-				IOboard_adc_in_process = 0;
-			}
-			else
-			{
-				IOboard_adc_in_process++;
-			}
-			break;
-		case TURN_OFF_DOUT:
-			break;
-		case TURN_OFF_YS:
-			break;
-		case ASK_FOR_KEY_IS:
-			break;
-		case ASK_FOR_ALL_DINS:
-			req->cmd = cmd;
-			req->myboard_addr = boardNumber;
-			req->element = 0;
-			askIO(&hcan2, req);
-			break;
-		case ASK_FOR_PERIOD_XA:
-			break;
-		default:
-			cmd_for_IOboard = 0;
-			break;
-	}
-}
+//void askIO(CAN_HandleTypeDef * hcan, IOboard_request_t * req)
+//{
+//	uint8_t message_Payload[8] = {0};
+//	TxHeader.StdId = 0x01;
+//	TxHeader.ExtId = 0x00;
+// 	TxHeader.RTR = CAN_RTR_DATA;
+// 	TxHeader.IDE = CAN_ID_STD;
+// 	TxHeader.DLC = 8;
+// 	TxHeader.TransmitGlobalTime = DISABLE;
+//	message_Payload[0] = 0x31;
+//	message_Payload[1] = req->myboard_addr;
+//	message_Payload[2] = req->cmd;
+//	message_Payload[3] = req->element;
+//	message_Payload[4] = 0x3B;
+//	HAL_CAN_AddTxMessage(hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+//}
+//
+//uint32_t receiveFromIO(CAN_HandleTypeDef * hcan, uint8_t * receivedData, uint32_t boardID)
+//{
+//	// Check if something was received
+//	if(hcan->Instance->RF0R & (0x3<<0))
+//	{
+//		if((hcan->Instance->sFIFOMailBox->RIR>>21) == (boardID))
+//		{
+//			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, receivedData);
+//		}
+//		else
+//		{
+//			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, Unfiltered_CAN_msgs);
+//		}
+//	}
+//	else if(hcan->Instance->RF1R & (0x3<<0))
+//	{
+//		if((hcan->Instance->sFIFOMailBox->RIR>>21) == (boardID))
+//		{
+//			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &RxHeader, receivedData);
+//		}
+//		else
+//		{
+//			HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO1, &RxHeader, Unfiltered_CAN_msgs);
+//		}
+//	}
+//	else
+//	{
+//		return NO_PACKET_RECEIVED;
+//	}
+//}
+//
+//void IOboard_request(CAN_HandleTypeDef * hcan, uint32_t boardNumber, uint32_t cmd, IOboard_request_t * req)
+//{
+//	uint32_t increment;
+//	switch(cmd)
+//	{
+//		case ASK_FOR_READINESS:
+//			req->cmd = cmd;
+//			req->myboard_addr = boardNumber;
+//			req->element = 0;	// Get the ADC channel
+//			askIO(&hcan2, req);
+//			break;
+//		case ASK_FOR_DIN:
+//
+//			increment = 0;
+//			break;
+//		case ASK_FOR_ADC:
+//			/*** When checking ADC channels increment command after CH15 **/
+//			req->cmd = cmd;
+//			req->myboard_addr = boardNumber;
+//			req->element = IOADCs[IOboard_adc_in_process];	// Get the ADC channel
+//			askIO(&hcan2, req);
+//			if(IOboard_adc_in_process > 5)	// if ADC channel reached CH15 increament command and nulify ADC channel
+//			{
+//				IOboard_adc_in_process = 0;
+//			}
+//			else
+//			{
+//				IOboard_adc_in_process++;
+//			}
+//			break;
+//		case TURN_OFF_DOUT:
+//			break;
+//		case TURN_OFF_YS:
+//			break;
+//		case ASK_FOR_KEY_IS:
+//			break;
+//		case ASK_FOR_ALL_DINS:
+//			req->cmd = cmd;
+//			req->myboard_addr = boardNumber;
+//			req->element = 0;
+//			askIO(&hcan2, req);
+//			break;
+//		case ASK_FOR_PERIOD_XA:
+//			break;
+//		default:
+//			cmd_for_IOboard = 0;
+//			break;
+//	}
+//}
 
 
 uint32_t CIO(IOBoard_t * IOBoard)
@@ -253,33 +269,46 @@ uint32_t CIO(IOBoard_t * IOBoard)
 
 uint32_t get_response(IOBoard_t * IOBoard)
 {
-	// Check if something was received
-	if(IOBoard->hcan->Instance->RF0R & (0x3<<0))
+	if(IOBoard->CAN_used == INTERNAL_CAN)
 	{
-		if((IOBoard->hcan->Instance->sFIFOMailBox->RIR>>21) == (IOBoard->receivedID))
+		// Check if something was received
+		if(IOBoard->hcan->Instance->RF0R & (0x3<<0))
 		{
-			HAL_CAN_GetRxMessage(IOBoard->hcan, CAN_RX_FIFO0, &RxHeader, IOBoard->RxBuffer);
+			if((IOBoard->hcan->Instance->sFIFOMailBox->RIR>>21) == (IOBoard->receivedID))
+			{
+				HAL_CAN_GetRxMessage(IOBoard->hcan, CAN_RX_FIFO0, &RxHeader, IOBoard->RxBuffer);
+			}
+			else
+			{
+				HAL_CAN_GetRxMessage(IOBoard->hcan, CAN_RX_FIFO0, &RxHeader, Unfiltered_CAN_msgs);
+			}
+		}
+		else if(IOBoard->hcan->Instance->RF1R & (0x3<<0))
+		{
+			if((IOBoard->hcan->Instance->sFIFOMailBox->RIR>>21) == (IOBoard->receivedID))
+			{
+				HAL_CAN_GetRxMessage(IOBoard->hcan, CAN_RX_FIFO1, &RxHeader, IOBoard->RxBuffer);
+			}
+			else
+			{
+				HAL_CAN_GetRxMessage(IOBoard->hcan, CAN_RX_FIFO1, &RxHeader, Unfiltered_CAN_msgs);
+			}
 		}
 		else
 		{
-			HAL_CAN_GetRxMessage(IOBoard->hcan, CAN_RX_FIFO0, &RxHeader, Unfiltered_CAN_msgs);
+			return NO_PACKET_RECEIVED;
 		}
 	}
-	else if(IOBoard->hcan->Instance->RF1R & (0x3<<0))
+	else if(IOBoard->CAN_used == EXTERNAL_CAN)
 	{
-		if((IOBoard->hcan->Instance->sFIFOMailBox->RIR>>21) == (IOBoard->receivedID))
+		CAN_RX_MSGOBJ received_message = {0};
+		received_message = canfd_receive(IOBoard->used_fifos->ReceiveFIFOs.two.FIFOx, IOBoard->spican);
+		for(int i = 0; i < 8; i++)
 		{
-			HAL_CAN_GetRxMessage(IOBoard->hcan, CAN_RX_FIFO1, &RxHeader, IOBoard->RxBuffer);
-		}
-		else
-		{
-			HAL_CAN_GetRxMessage(IOBoard->hcan, CAN_RX_FIFO1, &RxHeader, Unfiltered_CAN_msgs);
+			IOBoard->RxBuffer[i] = received_message.bF.message[i];
 		}
 	}
-	else
-	{
-		return NO_PACKET_RECEIVED;
-	}
+
 	return 0;
 }
 
@@ -301,8 +330,15 @@ void ask_for_readiness(IOBoard_t * IOBoard)						/*** 1 ***/
 	message_Payload[2] = IOBoard->requestedData.cmd;
 	message_Payload[3] = IOBoard->requestedData.element;
 	message_Payload[4] = 0x3B;
+	if(IOBoard->CAN_used == INTERNAL_CAN)
+	{
+		HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+	}
+	else if(IOBoard->CAN_used == EXTERNAL_CAN)
+	{
+		canfd_transmit(&TxHeader, message_Payload, IOBoard->used_fifos->TransmitFIFOs.one.FIFOx, IOBoard->spican);
 
-	HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+	}
 }
 void ask_for_specific_DIN(IOBoard_t * IOBoard, uint8_t DIN)		/*** 2 ***/
 {
@@ -323,7 +359,15 @@ void ask_for_specific_DIN(IOBoard_t * IOBoard, uint8_t DIN)		/*** 2 ***/
 	message_Payload[3] = IOBoard->requestedData.element;
 	message_Payload[4] = 0x3B;
 
-	HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+	if(IOBoard->CAN_used == INTERNAL_CAN)
+	{
+		HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+	}
+	else if(IOBoard->CAN_used == EXTERNAL_CAN)
+	{
+		canfd_transmit(&TxHeader, message_Payload, IOBoard->used_fifos->TransmitFIFOs.one.FIFOx, IOBoard->spican);
+
+	}
 }
 void ask_for_specific_ADC(IOBoard_t * IOBoard, uint8_t ADCx)	/*** 3 ***/
 {
@@ -344,7 +388,15 @@ void ask_for_specific_ADC(IOBoard_t * IOBoard, uint8_t ADCx)	/*** 3 ***/
 	message_Payload[3] = IOBoard->requestedData.element;
 	message_Payload[4] = 0x3B;
 
-	HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+	if(IOBoard->CAN_used == INTERNAL_CAN)
+	{
+		HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+	}
+	else if(IOBoard->CAN_used == EXTERNAL_CAN)
+	{
+		canfd_transmit(&TxHeader, message_Payload, IOBoard->used_fifos->TransmitFIFOs.one.FIFOx, IOBoard->spican);
+
+	}
 }
 void turn_on_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT)	/*** 4 ***/
 {
@@ -365,7 +417,15 @@ void turn_on_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT)	/*** 4 ***/
 	message_Payload[3] = IOBoard->requestedData.element;
 	message_Payload[4] = 0x3B;
 
-	HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+	if(IOBoard->CAN_used == INTERNAL_CAN)
+	{
+		HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+	}
+	else if(IOBoard->CAN_used == EXTERNAL_CAN)
+	{
+		canfd_transmit(&TxHeader, message_Payload, IOBoard->used_fifos->TransmitFIFOs.one.FIFOx, IOBoard->spican);
+
+	}
 }
 void turn_off_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT)	/*** 5 ***/
 {
@@ -386,7 +446,15 @@ void turn_off_specific_DOUT(IOBoard_t * IOBoard, uint8_t DOUT)	/*** 5 ***/
 	message_Payload[3] = IOBoard->requestedData.element;
 	message_Payload[4] = 0x3B;
 
-	HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+	if(IOBoard->CAN_used == INTERNAL_CAN)
+	{
+		HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+	}
+	else if(IOBoard->CAN_used == EXTERNAL_CAN)
+	{
+		canfd_transmit(&TxHeader, message_Payload, IOBoard->used_fifos->TransmitFIFOs.one.FIFOx, IOBoard->spican);
+
+	}
 }
 void ask_for_specific_IS(IOBoard_t * IOBoard, uint8_t ISx)		/*** 6 ***/
 {
@@ -407,7 +475,15 @@ void ask_for_specific_IS(IOBoard_t * IOBoard, uint8_t ISx)		/*** 6 ***/
 	message_Payload[3] = IOBoard->requestedData.element;
 	message_Payload[4] = 0x3B;
 
-	HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+	if(IOBoard->CAN_used == INTERNAL_CAN)
+	{
+		HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+	}
+	else if(IOBoard->CAN_used == EXTERNAL_CAN)
+	{
+		canfd_transmit(&TxHeader, message_Payload, IOBoard->used_fifos->TransmitFIFOs.one.FIFOx, IOBoard->spican);
+
+	}
 }
 void ask_DINs(IOBoard_t * IOBoard)								/*** 7 ***/
 {
@@ -428,8 +504,15 @@ void ask_DINs(IOBoard_t * IOBoard)								/*** 7 ***/
 	message_Payload[3] = IOBoard->requestedData.element;
 	message_Payload[4] = 0x3B;
 
-	HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
-//	canfd_getStatus(&canfd3_status, &spican3);
+	if(IOBoard->CAN_used == INTERNAL_CAN)
+	{
+		HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+	}
+	else if(IOBoard->CAN_used == EXTERNAL_CAN)
+	{
+		canfd_transmit(&TxHeader, message_Payload, IOBoard->used_fifos->TransmitFIFOs.one.FIFOx, IOBoard->spican);
+
+	}
 }
 void ask_for_XA(IOBoard_t * IOBoard)							/*** 8 ***/
 {
@@ -449,7 +532,15 @@ void ask_for_XA(IOBoard_t * IOBoard)							/*** 8 ***/
 	message_Payload[3] = 0;
 	message_Payload[4] = 0x3B;
 
-	HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+	if(IOBoard->CAN_used == INTERNAL_CAN)
+	{
+		HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+	}
+	else if(IOBoard->CAN_used == EXTERNAL_CAN)
+	{
+		canfd_transmit(&TxHeader, message_Payload, IOBoard->used_fifos->TransmitFIFOs.one.FIFOx, IOBoard->spican);
+
+	}
 }
 void set_address_of_IO(IOBoard_t * IOBoard, uint8_t NewAddr)	/*** 9 ***/
 {
@@ -470,7 +561,15 @@ void set_address_of_IO(IOBoard_t * IOBoard, uint8_t NewAddr)	/*** 9 ***/
 	message_Payload[3] = IOBoard->requestedData.element;
 	message_Payload[4] = 0x3B;
 
-	HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+	if(IOBoard->CAN_used == INTERNAL_CAN)
+	{
+		HAL_CAN_AddTxMessage(IOBoard->hcan, &TxHeader, message_Payload, (uint32_t*)CAN_TX_MAILBOX0);
+	}
+	else if(IOBoard->CAN_used == EXTERNAL_CAN)
+	{
+		canfd_transmit(&TxHeader, message_Payload, IOBoard->used_fifos->TransmitFIFOs.one.FIFOx, IOBoard->spican);
+
+	}
 }
 
 uint32_t ask_ADCs(IOBoard_t * IOBoard)
@@ -565,72 +664,72 @@ void place_DINs(IOBoard_t * IOBoard)
 	{
 		case BOARD1:
 
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_close_lights 			= (IOBoard->RxBuffer[4] & 0x80)>>7;	//X1
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_far_lights 				= (IOBoard->RxBuffer[4] & 0x40)>>6;	//X2
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_PT_lights 				= (IOBoard->RxBuffer[3] & 0x80)>>7;	//X3
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_half_heating 			= (IOBoard->RxBuffer[3] & 0x40)>>6;	//X4
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_full_heating 			= (IOBoard->RxBuffer[3] & 0x20)>>5;	//X5
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_left_indication 			= (IOBoard->RxBuffer[3] & 0x10)>>4;	//X6
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_right_indication 		= (IOBoard->RxBuffer[3] & 0x08)>>3;	//X7
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_work_with_PZ 			= (IOBoard->RxBuffer[3] & 0x04)>>2;	//X8
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_air_conditioning_for_KB 	= (IOBoard->RxBuffer[3] & 0x02)>>1;	//X9
-			New_MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_air_conditioning_for_KC 	= (IOBoard->RxBuffer[3] & 0x01)>>0;	//X10
+			MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_close_lights 			= (IOBoard->RxBuffer[4] & 0x80)>>7;	//X1
+			MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_far_lights 				= (IOBoard->RxBuffer[4] & 0x40)>>6;	//X2
+			MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_PT_lights 				= (IOBoard->RxBuffer[3] & 0x80)>>7;	//X3
+			MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_half_heating 			= (IOBoard->RxBuffer[3] & 0x40)>>6;	//X4
+			MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_full_heating 			= (IOBoard->RxBuffer[3] & 0x20)>>5;	//X5
+			MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_left_indication 			= (IOBoard->RxBuffer[3] & 0x10)>>4;	//X6
+			MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_right_indication 		= (IOBoard->RxBuffer[3] & 0x08)>>3;	//X7
+			MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_work_with_PZ 			= (IOBoard->RxBuffer[3] & 0x04)>>2;	//X8
+			MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_air_conditioning_for_KB 	= (IOBoard->RxBuffer[3] & 0x02)>>1;	//X9
+			MODBUS_Table.bit_table.iobt1_struct.DIN.signal_for_air_conditioning_for_KC 	= (IOBoard->RxBuffer[3] & 0x01)>>0;	//X10
 
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_close_lights 			= (IOBoard->RxBuffer[5] & 0x80)>>7;	//KS1
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_far_lights 				= (IOBoard->RxBuffer[5] & 0x40)>>6;	//KS2
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_air_conditioning_for_KB = (IOBoard->RxBuffer[5] & 0x20)>>5;	//KS3
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_half_heating 			= (IOBoard->RxBuffer[5] & 0x10)>>4;	//KS4
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_full_heating 			= (IOBoard->RxBuffer[5] & 0x08)>>3;	//KS5
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_air_conditioning_for_KC = (IOBoard->RxBuffer[5] & 0x04)>>2;	//KS6
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_left 					= (IOBoard->RxBuffer[5] & 0x02)>>1;	//KS7
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_right 					= (IOBoard->RxBuffer[5] & 0x01)>>0;	//KS8
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_cabin_fan 				= (IOBoard->RxBuffer[6] & 0x80)>>7;	//KS9
-			New_MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_warning_doors 			= (IOBoard->RxBuffer[6] & 0x40)>>6;	//KS10
+			MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_close_lights 			= (IOBoard->RxBuffer[5] & 0x80)>>7;	//KS1
+			MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_far_lights 				= (IOBoard->RxBuffer[5] & 0x40)>>6;	//KS2
+			MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_air_conditioning_for_KB = (IOBoard->RxBuffer[5] & 0x20)>>5;	//KS3
+			MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_half_heating 			= (IOBoard->RxBuffer[5] & 0x10)>>4;	//KS4
+			MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_full_heating 			= (IOBoard->RxBuffer[5] & 0x08)>>3;	//KS5
+			MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_air_conditioning_for_KC = (IOBoard->RxBuffer[5] & 0x04)>>2;	//KS6
+			MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_left 					= (IOBoard->RxBuffer[5] & 0x02)>>1;	//KS7
+			MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_right 					= (IOBoard->RxBuffer[5] & 0x01)>>0;	//KS8
+			MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_cabin_fan 				= (IOBoard->RxBuffer[6] & 0x80)>>7;	//KS9
+			MODBUS_Table.bit_table.iobt1_struct.DOUT.indication_warning_doors 			= (IOBoard->RxBuffer[6] & 0x40)>>6;	//KS10
 			break;
 		case BOARD2:
 
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_driver_passanger_out1 	= (IOBoard->RxBuffer[4] & 0x80)>>7;	//X1
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_driver_passanger_out2 	= (IOBoard->RxBuffer[4] & 0x40)>>6;	//X2
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_driver_passanger_out3 	= (IOBoard->RxBuffer[3] & 0x80)>>7;	//X3
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_apparel 					= (IOBoard->RxBuffer[3] & 0x40)>>6;	//X4
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_invalid_near_door 		= (IOBoard->RxBuffer[3] & 0x20)>>5;	//X5
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_invalid_cabin			= (IOBoard->RxBuffer[3] & 0x10)>>4;	//X6
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_door1_opened 			= (IOBoard->RxBuffer[3] & 0x08)>>3;	//X7
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_door2_opened				= (IOBoard->RxBuffer[3] & 0x04)>>2;	//X8
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_door3_opened 			= (IOBoard->RxBuffer[3] & 0x02)>>1;	//X9
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_hv_circuit_on 			= (IOBoard->RxBuffer[3] & 0x01)>>0;	//X10
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_driver_passanger_out1 	= (IOBoard->RxBuffer[4] & 0x80)>>7;	//X1
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_driver_passanger_out2 	= (IOBoard->RxBuffer[4] & 0x40)>>6;	//X2
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_driver_passanger_out3 	= (IOBoard->RxBuffer[3] & 0x80)>>7;	//X3
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_apparel 					= (IOBoard->RxBuffer[3] & 0x40)>>6;	//X4
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_invalid_near_door 		= (IOBoard->RxBuffer[3] & 0x20)>>5;	//X5
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_invalid_cabin			= (IOBoard->RxBuffer[3] & 0x10)>>4;	//X6
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_door1_opened 			= (IOBoard->RxBuffer[3] & 0x08)>>3;	//X7
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_door2_opened				= (IOBoard->RxBuffer[3] & 0x04)>>2;	//X8
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_door3_opened 			= (IOBoard->RxBuffer[3] & 0x02)>>1;	//X9
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_hv_circuit_on 			= (IOBoard->RxBuffer[3] & 0x01)>>0;	//X10
 
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_washing 					= (IOBoard->RxBuffer[5] & 0x80)>>7;	//KS1
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_arrow_under_current 		= (IOBoard->RxBuffer[5] & 0x40)>>6;	//KS2
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_arrow_without_current 	= (IOBoard->RxBuffer[5] & 0x20)>>5;	//KS3
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_master_cabin 			= (IOBoard->RxBuffer[5] & 0x10)>>4;	//KS4
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_slave_cabin 				= (IOBoard->RxBuffer[5] & 0x08)>>3;	//KS5
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_tram_disconect_1 		= (IOBoard->RxBuffer[5] & 0x04)>>2;	//KS6
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_static_KKB_power_on 		= (IOBoard->RxBuffer[5] & 0x02)>>1;	//KS7
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_static_KC_power_on 		= (IOBoard->RxBuffer[5] & 0x01)>>0;	//KS8
-			New_MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_tram_disconect_2 		= (IOBoard->RxBuffer[6] & 0x80)>>7;	//KS9
-			New_MODBUS_Table.bit_table.iobt2_struct.DOUT.indication_control_on				= (IOBoard->RxBuffer[6] & 0x20)>>5;	//KS11
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_washing 					= (IOBoard->RxBuffer[5] & 0x80)>>7;	//KS1
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_arrow_under_current 		= (IOBoard->RxBuffer[5] & 0x40)>>6;	//KS2
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_arrow_without_current 	= (IOBoard->RxBuffer[5] & 0x20)>>5;	//KS3
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_master_cabin 			= (IOBoard->RxBuffer[5] & 0x10)>>4;	//KS4
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_slave_cabin 				= (IOBoard->RxBuffer[5] & 0x08)>>3;	//KS5
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_tram_disconect_1 		= (IOBoard->RxBuffer[5] & 0x04)>>2;	//KS6
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_static_KKB_power_on 		= (IOBoard->RxBuffer[5] & 0x02)>>1;	//KS7
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_static_KC_power_on 		= (IOBoard->RxBuffer[5] & 0x01)>>0;	//KS8
+			MODBUS_Table.bit_table.iobt2_struct.DIN.signal_for_tram_disconect_2 		= (IOBoard->RxBuffer[6] & 0x80)>>7;	//KS9
+			MODBUS_Table.bit_table.iobt2_struct.DOUT.indication_control_on				= (IOBoard->RxBuffer[6] & 0x20)>>5;	//KS11
 			break;
 		case BOARD3:
 
-			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_dimension_lights 		= (IOBoard->RxBuffer[4] & 0x80)>>7;	//X1
-			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_turn_on_half_lighting 	= (IOBoard->RxBuffer[4] & 0x40)>>6;	//X2
-			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_turn_on_full_lighting 	= (IOBoard->RxBuffer[3] & 0x80)>>7;	//X3
-			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_turn_on_control 			= (IOBoard->RxBuffer[3] & 0x40)>>6;	//X4
-			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_unauthorized_PZ_access 	= (IOBoard->RxBuffer[3] & 0x20)>>5;	//X5
-			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_fire						= (IOBoard->RxBuffer[3] & 0x10)>>4;	//X6
-			New_MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_LS_state					= (IOBoard->RxBuffer[3] & 0x08)>>3;	//X7
+			MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_dimension_lights 		= (IOBoard->RxBuffer[4] & 0x80)>>7;	//X1
+			MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_turn_on_half_lighting 	= (IOBoard->RxBuffer[4] & 0x40)>>6;	//X2
+			MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_turn_on_full_lighting 	= (IOBoard->RxBuffer[3] & 0x80)>>7;	//X3
+			MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_turn_on_control 			= (IOBoard->RxBuffer[3] & 0x40)>>6;	//X4
+			MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_unauthorized_PZ_access 	= (IOBoard->RxBuffer[3] & 0x20)>>5;	//X5
+			MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_fire						= (IOBoard->RxBuffer[3] & 0x10)>>4;	//X6
+			MODBUS_Table.bit_table.iobt3_struct.DIN.signal_for_LS_state					= (IOBoard->RxBuffer[3] & 0x08)>>3;	//X7
 
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_dimension_lights 		= (IOBoard->RxBuffer[5] & 0x80)>>7;	//KS1
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_half_lighting 			= (IOBoard->RxBuffer[5] & 0x40)>>6;	//KS2
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_full_lighting 			= (IOBoard->RxBuffer[5] & 0x20)>>5;	//KS3
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_emergency_lighting 		= (IOBoard->RxBuffer[5] & 0x10)>>4;	//KS4
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_control_startup 		= (IOBoard->RxBuffer[5] & 0x08)>>3;	//KS5
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_fire 					= (IOBoard->RxBuffer[5] & 0x04)>>2;	//KS6
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_control_working 		= (IOBoard->RxBuffer[5] & 0x02)>>1;	//KS7
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_AT_cabin12_power_on 	= (IOBoard->RxBuffer[5] & 0x01)>>0;	//KS8
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_E1_cabin12_power_on 	= (IOBoard->RxBuffer[6] & 0x80)>>7;	//KS9
-			New_MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_PZ_power_up 			= (IOBoard->RxBuffer[6] & 0x40)>>6;	//KS10
+			MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_dimension_lights 		= (IOBoard->RxBuffer[5] & 0x80)>>7;	//KS1
+			MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_half_lighting 			= (IOBoard->RxBuffer[5] & 0x40)>>6;	//KS2
+			MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_full_lighting 			= (IOBoard->RxBuffer[5] & 0x20)>>5;	//KS3
+			MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_emergency_lighting 		= (IOBoard->RxBuffer[5] & 0x10)>>4;	//KS4
+			MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_control_startup 		= (IOBoard->RxBuffer[5] & 0x08)>>3;	//KS5
+			MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_fire 					= (IOBoard->RxBuffer[5] & 0x04)>>2;	//KS6
+			MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_control_working 		= (IOBoard->RxBuffer[5] & 0x02)>>1;	//KS7
+			MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_AT_cabin12_power_on 	= (IOBoard->RxBuffer[5] & 0x01)>>0;	//KS8
+			MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_E1_cabin12_power_on 	= (IOBoard->RxBuffer[6] & 0x80)>>7;	//KS9
+			MODBUS_Table.bit_table.iobt3_struct.DOUT.indication_PZ_power_up 			= (IOBoard->RxBuffer[6] & 0x40)>>6;	//KS10
 			break;
 		defalut:
 			break;
@@ -664,12 +763,12 @@ void place_ADCs(IOBoard_t * IOBoard)
 //					MODBUS_Table.modbus_table[0x1F] = IOBoard->RxBuffer[5];
 //					break;
 				case CH4:
-					New_MODBUS_Table.bit_table.iobt1_struct.analog.tachogenerator_phase1[1] = IOBoard->RxBuffer[6];
-					New_MODBUS_Table.bit_table.iobt1_struct.analog.tachogenerator_phase1[0] = IOBoard->RxBuffer[5];
+					MODBUS_Table.bit_table.iobt1_struct.analog.tachogenerator_phase1[1] = IOBoard->RxBuffer[6];
+					MODBUS_Table.bit_table.iobt1_struct.analog.tachogenerator_phase1[0] = IOBoard->RxBuffer[5];
 					break;
 				case CH5:
-					New_MODBUS_Table.bit_table.iobt1_struct.analog.tachogenerator_phase2[1] = IOBoard->RxBuffer[6];
-					New_MODBUS_Table.bit_table.iobt1_struct.analog.tachogenerator_phase2[0] = IOBoard->RxBuffer[5];
+					MODBUS_Table.bit_table.iobt1_struct.analog.tachogenerator_phase2[1] = IOBoard->RxBuffer[6];
+					MODBUS_Table.bit_table.iobt1_struct.analog.tachogenerator_phase2[0] = IOBoard->RxBuffer[5];
 					break;
 //				case CH7:
 //					MODBUS_Table.modbus_table[0x24] = IOBoard->RxBuffer[6];
@@ -703,8 +802,8 @@ void place_ADCs(IOBoard_t * IOBoard)
 //					New_MODBUS_Table.bit_table.iobt1_struct.analog.tachogenerator_phase1 = IOBoard->RxBuffer[5];
 //					break;
 				case CH5:
-					New_MODBUS_Table.bit_table.iobt2_struct.analog.battery_voltage[1] = IOBoard->RxBuffer[6];
-					New_MODBUS_Table.bit_table.iobt2_struct.analog.battery_voltage[0] = IOBoard->RxBuffer[5];
+					MODBUS_Table.bit_table.iobt2_struct.analog.battery_voltage[1] = IOBoard->RxBuffer[6];
+					MODBUS_Table.bit_table.iobt2_struct.analog.battery_voltage[0] = IOBoard->RxBuffer[5];
 					break;
 //				case CH7:
 //					MODBUS_Table.modbus_table[0x24] = IOBoard->RxBuffer[6];
@@ -744,8 +843,8 @@ void place_XAs(IOBoard_t * IOBoard)
 	{
 		case BOARD1:
 			XA2_dir = IOBoard->RxBuffer[3];
-			New_MODBUS_Table.bit_table.iobt1_struct.analog.tachogenerator_phase1[1] = IOBoard->RxBuffer[5];
-			New_MODBUS_Table.bit_table.iobt1_struct.analog.tachogenerator_phase1[0] = IOBoard->RxBuffer[4];
+			MODBUS_Table.bit_table.iobt1_struct.analog.tachogenerator_phase1[1] = IOBoard->RxBuffer[5];
+			MODBUS_Table.bit_table.iobt1_struct.analog.tachogenerator_phase1[0] = IOBoard->RxBuffer[4];
 			break;
 		case BOARD2:
 

@@ -386,7 +386,8 @@ typedef struct spiCAN_t
 	SPI_TypeDef * SPIx;
 
 	DMA_TypeDef * DMAx;
-	DMA_Stream_TypeDef * DMAStreamX;
+	DMA_Stream_TypeDef * SPI_TX_DMAStreamX;
+	DMA_Stream_TypeDef * SPI_RX_DMAStreamX;
 
 	uint32_t CS_Pin;
 	GPIO_TypeDef * CS_Port;
@@ -417,7 +418,7 @@ typedef union canMsg_t
 }canMsg;
 
 
-uint32_t canfd_transmit(uint8_t * message, uint32_t FIFOx, spiCAN * spican);
+uint32_t canfd_transmit(CAN_TxHeaderTypeDef * TxHeader, uint8_t * message, uint32_t FIFOx, spiCAN * spican);
 CAN_RX_MSGOBJ canfd_receive(uint32_t FIFOx, spiCAN * spican);
 
 void canfd_RAMInit(spiCAN * spican);

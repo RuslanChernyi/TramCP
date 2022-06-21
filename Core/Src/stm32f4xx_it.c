@@ -62,6 +62,8 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern DMA_HandleTypeDef hdma_spi1_tx;
+extern DMA_HandleTypeDef hdma_spi2_tx;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim7;
 extern UART_HandleTypeDef huart1;
@@ -224,6 +226,20 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles DMA1 stream4 global interrupt.
+  */
+void DMA1_Stream4_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Stream4_IRQn 0 */
+
+  /* USER CODE END DMA1_Stream4_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_spi2_tx);
+  /* USER CODE BEGIN DMA1_Stream4_IRQn 1 */
+
+  /* USER CODE END DMA1_Stream4_IRQn 1 */
+}
+
+/**
   * @brief This function handles USART1 global interrupt.
   */
 void USART1_IRQHandler(void)
@@ -286,21 +302,21 @@ void TIM7_IRQHandler(void)
 	switch(current_block)
 	{
 		case 1:
-			go_to_the_next_block = YES;//CIO(&io1);	//
+			go_to_the_next_block = CIO(&io1);	// YES;//
 			if(go_to_the_next_block == YES)
 			{
 				current_block = 2;
 			}
 			break;
 		case 2:
-			go_to_the_next_block = YES;//CIO(&io2);
+			go_to_the_next_block = CIO(&io2);
 			if(go_to_the_next_block == YES)
 			{
 				current_block = 3;
 			}
 			break;
 		case 3:
-			go_to_the_next_block = YES;//CIO(&io3);
+			go_to_the_next_block = CIO(&io3);
 			if(go_to_the_next_block == YES)
 			{
 				current_block = 4;
@@ -319,6 +335,20 @@ void TIM7_IRQHandler(void)
   /* USER CODE BEGIN TIM7_IRQn 1 */
 
   /* USER CODE END TIM7_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA2 stream3 global interrupt.
+  */
+void DMA2_Stream3_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Stream3_IRQn 0 */
+
+  /* USER CODE END DMA2_Stream3_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_spi1_tx);
+  /* USER CODE BEGIN DMA2_Stream3_IRQn 1 */
+
+  /* USER CODE END DMA2_Stream3_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
